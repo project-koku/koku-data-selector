@@ -51,17 +51,33 @@ Automate Athena Query
 
 Certain portions of the above process could be automated to further reduce the need for manual querying. 
 
-Instead of manually kicking off a query in the Athena console and then having a user POST to the cost management API endpoint, a serverless function could be written to do this on a configurable schedule. Using Amazon `Lambda <https://aws.amazon.com/lambda/>`_, a function could be written to run the above Athena query, gather the result file name and location and send the POST message to the cost management API, whereupon Cost MAnagement would consume the data. 
+Instead of manually kicking off a query in the Athena console and then having a user POST to the cost management API endpoint, a serverless function could be written to do this on a configurable schedule. Using Amazon `Lambda <https://aws.amazon.com/lambda/>`_, a function could be written to run the above Athena query, gather the result file name and location and send the POST message to the cost management API, whereupon Cost Management would consume the data. 
 
 
 Lamda/Athena Setup
 ==================
 For the most part follow `How to schedule athena queries <https://aws.amazon.com/premiumsupport/knowledge-center/schedule-query-athena/>`_
 
-1. Create correct IAM role/policy for interacting with Lambda/Athena
+1. Create a S3 bucket/With IAM access for Athena results
+    a. S3 create new bucket
+        i. Create a new S3 bucket with default settings
+        ii. Save your BUCKET name
+    b. IAM Create new Policy
+        i. Create policy
+        ii. Use JSON input and paste the following policy `Bucket-policy <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/bucket-policy.rst>`_
+        iii. **Note:** Be sure to replacing CHANGE-ME for your BUCKET name
+    c. IAM Create new Role
+        i. Create Role
+        ii. Trusted entity type: AWS Account
+        iii. Use Another AWS account with the following: ``589173575009``
+        iv. Attach your previously created Policy
+        v. Add a Name/Description
+        vi. Create
+
+2. Create correct IAM role/policy for interacting with Lambda/Athena
     a. IAM Create new policy
         i. Use JSON and paste the following lambda/athena policy: `Athena-policy <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/athena-policy.rst>`_
-        ii. **Note:** Be sure to update the policy bucket names from CHANGE-ME to match your CUR bucket
+        ii. **Note:** Be sure to update the policy bucket names from CHANGE-ME to match your BUCKET name
         iii. Add a Name/Description for the policy and create
     b. IAM create role
         i. Create AWS service role
@@ -69,7 +85,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         iii. Add policy created above
         iv. Add Name/Description of Role
         v. Create
-2. Create/setup Lambda function
+3. Create/setup Lambda function
     a. Create new Lambda function
         i. Author from scratch
         ii. Name your function
@@ -79,7 +95,8 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         vi. Hit create
     b. Write some code
         i. Select code tab in the lambda function
-        ii. Drop the following code updating the DATABASE and BUCKET Vars:
+        ii. Drop the following code below updating the DATABASE and BUCKET Vars
+        iii. Hit Deploy then Test and see execution results
 
 .. code-block::
 
@@ -120,10 +137,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         # Return response after starting the query execution, database querying against and output dir for query results
         return response, DATABASE, output
 
-        iii. **Note:** Be sure to update the Bucket and Database names
-        iv. Hit Deploy then Test and see execution result
-
-3. Schedule the function to run using AmazonEventBridge
+4. Schedule the function to run using AmazonEventBridge
     a. Create EventBridge schedule
         i. Add a Name/Description
         ii. Select group default
