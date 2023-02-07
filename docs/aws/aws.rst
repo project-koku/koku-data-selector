@@ -85,60 +85,124 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         iii. Add policy created above
         iv. Add Name/Description of Role
         v. Create
-3. Create/setup Lambda function
-    a. Create new Lambda function
+3. Create athena query Lambda function
+    a. Create function for querying athena
         i. Author from scratch
         ii. Name your function
         iii. Select python runtime
         iv. Architecture x86_64
         v. Permissions: select role created above
         vi. Hit create
-    b. Write some code
+    b. Write some code!
         i. Select code tab in the lambda function
         ii. Drop the following code below updating the DATABASE and BUCKET Vars
         iii. Hit Deploy then Test and see execution results
+
 
 .. code-block::
 
     import boto3
     import uuid
+    import json
     from datetime import datetime
 
-    BUCKET = 'CHANGE-ME'
     now = datetime.now()
     year = now.strftime("%Y")
     month = now.strftime("%m")
     day = now.strftime("%d")
 
-    # Database to execute the query against
-    DATABASE = 'CHANGE-ME'
+    # Vars to Change!
+    source_uuid = "CHANGEME"                                    # Cost Management source_uuid
+    bucket = 'CHANGEME'                                         # Bucket created for query results
+    database = 'athenacurcfn_athena_cost_and_usage'             # Database to execute athena queries
+    output=f's3://{bucket}/{year}/{month}/{day}/{uuid.uuid4()}' # Output location for query results
 
-    # Output location for query results
-    output=f's3://{BUCKET}/{year}/{month}/{day}/{uuid.uuid4()}'
-
-    # Query string to execute
-    query = f"SELECT * FROM {DATABASE}.athena_cost_and_usage WHERE ((bill_billing_entity = 'AWS Marketplace' AND line_item_legal_entity like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%Red Hat%')) AND year = '{year}' AND month = '{month}'"
+    # Athena query
+    query = f"SELECT * FROM {database}.athena_cost_and_usage WHERE ((bill_billing_entity = 'AWS Marketplace' AND line_item_legal_entity like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%Red Hat%')) AND year = '{year}' AND month = '{month}'"
 
     def lambda_handler(event, context):
-        # Initiate the Boto3 Client
-        client = boto3.client('athena')
-
-        # Start the query execution
-        response = client.start_query_execution(
+        # Initiate Boto3 athena Client
+        athena_client = boto3.client('athena')
+        
+        # Trigger athena query
+        response = athena_client.start_query_execution(
             QueryString=query,
             QueryExecutionContext={
-                'Database': DATABASE
+                'Database': database
             },
             ResultConfiguration={
                 'OutputLocation': output
             }
         )
+        
+        # Save query execution to s3 object
+        s3 = boto3.client('s3')
+        json_object = {"source_uuid": source_uuid, "bill_year": year, "bill_month": month, "query_execution_id": response.get("QueryExecutionId"), "result_prefix": output}
+        s3.put_object(
+            Body=json.dumps(json_object),
+            Bucket=bucket,
+            Key='query-data.json'
+        )
+        
+        return json_object
 
-        # Return response after starting the query execution, database querying against and output dir for query results
-        return response, DATABASE, output
 
-4. Schedule the function to run using AmazonEventBridge
-    a. Create EventBridge schedule
+4. Create Lambda function to post results
+    a. Create function to post report files to Cost Management
+        i. Author from scratch
+        ii. Name your function
+        iii. Select python runtime
+        iv. Architecture x86_64
+        v. Permissions: select role created above
+        vi. Hit create
+    b. Write some code!
+        i. Select code tab in the lambda function
+        ii. Drop the following code below updating the BUCKET, USER, PASS Vars
+        iii. Hit Deploy then Test and see execution results
+
+.. code-block::
+
+    import boto3
+    import json
+    import requests
+
+    bucket = "CHANGEME"  # Bucket for athena query results
+    USER = "CHANGEME"    # Cost Management Username
+    PASS = "CHANGEME"    # Cost Management Password
+
+    def lambda_handler(event, context):
+        # Initiate Boto3 s3 and fetch query file
+        s3_resource = boto3.resource('s3')
+        json_content = json.loads(s3_resource.Object(bucket, 'query-data.json').get()['Body'].read().decode('utf-8'))
+        
+        # Initiate Boto3 athena Client and attempt to fetch athena results
+        athena_client = boto3.client('athena')
+        try:
+            athena_results = athena_client.get_query_execution(QueryExecutionId=json_content["query_execution_id"])
+        except Exception as e:
+            return f"Error fetching athena query results: {e} \n Consider increasing the time between running and fetching results"
+
+        reports_list = []
+        prefix = json_content["result_prefix"].split(f'{bucket}/')[-1]
+        
+        # Initiate Boto3 s3 client
+        s3_client = boto3.client('s3')
+        result_data = s3_client.list_objects(Bucket=bucket, Prefix=prefix)
+        for item in result_data.get("Contents"):
+            if item.get("Key").endswith(".csv"):
+                print(item.get("Key"))
+                reports_list.append(item.get("Key"))
+                
+        # Post results to console.redhat.com API
+        url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
+        data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
+        resp = requests.post(url, data=data, auth=(USER, PASS))
+
+        return resp
+
+
+5. Create two AmazonEventBridge schedules to trigger the above functions
+    a. Create EventBridge schedule for Athena query function
         i. Add a Name/Description
         ii. Select group default
         iii. Occurrence: Recurring schedule
@@ -155,7 +219,26 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         xiv. Permissions: Create new role on the fly
         xv. NEXT
         xvi. Review and create
+    b. Create EventBridge schedule for Cost Mgmt Post function
+        i. Add a Name/Description
+        ii. Select group default
+        iii. Occurrence: Recurring schedule
+        iv. Type: Cron-based
+        v. Set cron schedule **(0 21 * * ? *)** This will be 9PM Every day
+        vi. Set flexible time window 
+        vii. NEXT
+        viii. Target detail: AWS Lambda invoke
+        ix. Select lambda function previously created
+        x. NEXT
+        xi. Enable the schedule
+        xii. Configure retry logic
+        xiii. Encryption (Ignore)
+        xiv. Permissions: Create new role on the fly
+        xv. NEXT
+        xvi. Review and create
 
 **GOTCHAS:**
 
-* Today this Lambda function just triggers a query in Athena and is not aware when the query is complete. This mean it cannot POST the file locations to Cost Management.
+* Why have two functions? - Lambda functions should be simple scripts that run within seconds, however depending on the customers data an athena query may take hours. This enables the customer to easily configure the time between each scripts cron job if extended query time is required.
+* The Lambda functions above may hit "errorMessage": ".. Task timed out after 3.04 seconds" Lambda has a default 3s timeout for scripts. On each Lambda function you can change this 3s timeout to 30s if required.
+
