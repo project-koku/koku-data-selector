@@ -74,7 +74,12 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         v. Add a Name/Description
         vi. Create
 
-2. Create correct IAM role/policy for interacting with Lambda/Athena
+2. Create Cost Management source
+    a. Folow sources wizard in console.redhat.com
+    b. Be sure to create a **storage-only** AWS source type
+    c. Note down your source_uuid, required for Lambda scripts
+
+3. Create correct IAM role/policy for interacting with Lambda/Athena
     a. IAM Create new policy
         i. Use JSON and paste the following lambda/athena policy: `Athena-policy <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/athena-policy.rst>`_
         ii. **Note:** Be sure to update the policy bucket names from CHANGE-ME to match your BUCKET name
@@ -85,7 +90,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         iii. Add policy created above
         iv. Add Name/Description of Role
         v. Create
-3. Create athena query Lambda function
+4. Create athena query Lambda function
     a. Create function for querying athena
         i. Author from scratch
         ii. Name your function
@@ -147,7 +152,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         return json_object
 
 
-4. Create Lambda function to post results
+5. Create Lambda function to post results
     a. Create function to post report files to Cost Management
         i. Author from scratch
         ii. Name your function
@@ -201,7 +206,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         return resp
 
 
-5. Create two AmazonEventBridge schedules to trigger the above functions
+6. Create two AmazonEventBridge schedules to trigger the above functions
     a. Create EventBridge schedule for Athena query function
         i. Add a Name/Description
         ii. Select group default
