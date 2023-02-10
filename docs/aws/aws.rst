@@ -77,7 +77,8 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
 2. Create Cost Management source
     a. Folow sources wizard in console.redhat.com
     b. Be sure to create a **storage-only** AWS source type
-    c. Note down your source_uuid, required for Lambda scripts
+    c. Visit https://console.redhat.com/api/cost-management/v1/sources/
+    d. Find your source and note down its source_uuid, **required** for Lambda scripts
 
 3. Create correct IAM role/policy for interacting with Lambda/Athena
     a. IAM Create new policy
