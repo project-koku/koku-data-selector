@@ -21,7 +21,7 @@ Azure resource group and storage account
 2. Setup read access for Cost Management
     a. In Azure Cloud Shell run the following to obtain the subscription ID: ``az account show --query "{subscription_id: id }"``
     b. Create Resource group role: ``az ad sp create-for-rbac -n "CostManagement" --role "Storage Account Contributor"  --scope /subscriptions/{subscriptionId}/resourceGroups/{resourceGroup1} --query '{"tenant": tenant, "client_id": appId, "secret": password}'``
-    c. **Note** Keep a copy of your subscription_id, client_id, secret and tenant for creating your sources in Cost Management
+    c. **Note** Keep a copy of your subscription_id, client_id, secret and tenant for creating your source in console.redhat.com
 
 3. Create Cost Management source
     a. Folow sources wizard in console.redhat.com
@@ -91,7 +91,7 @@ Azure resource group and storage account
                     else:
                         latest_blob = blob
 
-                bc = container_client.get_blob_client(blob=latest_blob)
+                bc = container_client.get_blob_client(blob=latest_blob) # DO we need this? Or can this work latest_blob.download_blob()
                 data = bc.download_blob()
                 blobjct = "/tmp/blob.csv"
                 with open(blobjct, "wb") as f:
