@@ -3,15 +3,6 @@
 Azure: Customer-filtered data
 =============================
 
-Prerequisite
-============
-
-1. Create billing export, see `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_microsoft_azure_source_to_cost_management/assembly-adding-azure-sources>`_ 
-2. Make a note of the storage account in use for the cost export **Required** for function
-
-=======================
-Automate Filtered Query
-=======================
 
 Azure resource group and storage account
 ========================================
@@ -24,12 +15,18 @@ Azure resource group and storage account
     c. **Note** Keep a copy of your subscription_id, client_id, secret and tenant for creating your source in console.redhat.com
 
 3. Create Cost Management source
-    a. Folow sources wizard in console.redhat.com
+    a. Follow sources wizard in console.redhat.com
     b. Be sure to create a **storage-only** Azure source type
     c. Visit https://console.redhat.com/api/cost-management/v1/sources/
     d. Find your source and note down its source_uuid, **required** for Azure function
 
-4. Setup function to post reports
+
+4. Create billing export
+    a. See sections 1.1 and 1.3 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_microsoft_azure_source_to_cost_management/assembly-adding-azure-sources>`_ NOTE: Since Cost Managment does not need direct access you can skip 1.2 
+    b. Make a note of the storage account in use for the cost export **Required** for function
+
+
+5. Setup function to post reports
     a. Create Azure Time Trigger function using `VSCode <https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-vs-code?tabs=nodejs#debugging-functions-locally>`_
         i. Set the Time trigger function to run once a day
 
