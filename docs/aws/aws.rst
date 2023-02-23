@@ -81,7 +81,10 @@ Create bucket for reports
     c. Visit https://console.redhat.com/api/cost-management/v1/sources/
     d. Find your source and note down its source_uuid, **required** for Lambda scripts
 
-3. Create correct IAM role/policy for interacting with Lambda/Athena
+3. Cost and Usage reports
+    a. Create cost and usage report see: `Cost and Usage creation`_
+
+4. Create correct IAM role/policy for interacting with Lambda/Athena
     a. IAM Create new policy
         i. Use JSON and paste the following lambda/athena policy: `Athena-policy <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/athena-policy.rst>`_
         ii. **Note:** Be sure to update the policy bucket names from CHANGE-ME to match your BUCKET name
@@ -93,7 +96,7 @@ Create bucket for reports
         iv. Add Name/Description of Role
         v. Create
 
-4. Create athena query Lambda function
+5. Create athena query Lambda function
     a. Create function for querying athena
         i. Author from scratch
         ii. Name your function
@@ -155,7 +158,7 @@ Create bucket for reports
         return json_object
 
 
-5. Create Lambda function to post results
+6. Create Lambda function to post results
     a. Create function to post report files to Cost Management
         i. Author from scratch
         ii. Name your function
@@ -209,7 +212,7 @@ Create bucket for reports
         return resp
 
 
-6. Create two AmazonEventBridge schedules to trigger the above functions
+7. Create two AmazonEventBridge schedules to trigger the above functions
     a. Create EventBridge schedule for Athena query function
         i. Add a Name/Description
         ii. Select group default

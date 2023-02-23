@@ -1,16 +1,7 @@
 
-=============================
+===========================
 GCP: Customer-filtered data
-=============================
-
-Prerequisite
-============
-
-1. Create billing export, see `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources>`_
-
-=======================
-Automate Filtered Query
-=======================
+===========================
 
 GCP bucket store
 ================
@@ -27,6 +18,9 @@ GCP bucket store
     c. Add the bucket created in step 1
     d. Visit https://console.redhat.com/api/cost-management/v1/sources/
     e. Find your source and note down its source_uuid, **required** for GCP function
+
+4. Create billing export
+    a. see sections 1.4 and 1.5 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources>`_
 
 4. Setup function to post reports
     a. From Cloud Functions select create function
@@ -160,7 +154,6 @@ GCP bucket store
             files_list = create_reports()
             resp = post_data(files_list)
             return f'Files posted! {resp}'
-
 
     h. Select the requirements.py file and paste the following
 
