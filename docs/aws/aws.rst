@@ -53,10 +53,11 @@ Certain portions of the above process could be automated to further reduce the n
 
 Instead of manually kicking off a query in the Athena console and then having a user POST to the cost management API endpoint, a serverless function could be written to do this on a configurable schedule. Using Amazon `Lambda <https://aws.amazon.com/lambda/>`_, a function could be written to run the above Athena query, gather the result file name and location and send the POST message to the cost management API, whereupon Cost Management would consume the data. 
 
-
-Lamda/Athena Setup
-==================
 For the most part follow `How to schedule athena queries <https://aws.amazon.com/premiumsupport/knowledge-center/schedule-query-athena/>`_
+
+
+Create bucket for reports
+=========================
 
 1. Create a S3 bucket/With IAM access for Athena results
     a. S3 create new bucket
@@ -75,7 +76,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         vi. Create
 
 2. Create Cost Management source
-    a. Folow sources wizard in console.redhat.com
+    a. Follow sources wizard in console.redhat.com
     b. Be sure to create a **storage-only** AWS source type
     c. Visit https://console.redhat.com/api/cost-management/v1/sources/
     d. Find your source and note down its source_uuid, **required** for Lambda scripts
@@ -91,6 +92,7 @@ For the most part follow `How to schedule athena queries <https://aws.amazon.com
         iii. Add policy created above
         iv. Add Name/Description of Role
         v. Create
+
 4. Create athena query Lambda function
     a. Create function for querying athena
         i. Author from scratch
