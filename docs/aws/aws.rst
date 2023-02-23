@@ -2,57 +2,6 @@
 ===========================
 AWS: Customer-filtered data
 ===========================
-
-Cost and Usage creation
-=======================
-
-1. From the AWS billing console select Cost & usage reports
-2. Create report
-3. Name your report
-4. Select Include resource IDs followed by Next
-5. Configure S3 bucket to store usage data
-6. Set report prefix
-7. Time Granularity: Hourly
-8. Enable report data integration for: Amazon Athena
-9. Next to review configuration and Create
-
-
-Configure Athena to query data
-==============================
-
-1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_ 
-2. Make sure Athena is configured to store query results to the desired S3 bucket see `Querying <https://docs.aws.amazon.com/athena/latest/ug/querying.html>`_
-3. Once Athena is configured the following query will return the filtered dataset specific to your Red Hat commitment. The table name following the FROM keyword would be updated to match the name of the table configured in your Athena instance. The year and month can be updated to gather data specific to a particular month.
-
-.. code-block::
-
-    SELECT *
-    FROM athena_cost_and_usage
-    WHERE (
-            bill_billing_entity = 'AWS Marketplace'
-            AND line_item_legal_entity like '%Red Hat%'
-        )
-        OR (
-            line_item_legal_entity like '%Amazon Web Services%'
-            AND line_item_line_item_description like '%Red Hat%'
-        )
-        AND year = '2022'
-        AND month = '10'
-
-4. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
-5. POST to our *newly developed* cost management API endpoint with file location/path of the query results for ingestion by Cost Management
-
-
-
-
-=====================
-Automate Athena Query
-=====================
-
-Certain portions of the above process could be automated to further reduce the need for manual querying. 
-
-Instead of manually kicking off a query in the Athena console and then having a user POST to the cost management API endpoint, a serverless function could be written to do this on a configurable schedule. Using Amazon `Lambda <https://aws.amazon.com/lambda/>`_, a function could be written to run the above Athena query, gather the result file name and location and send the POST message to the cost management API, whereupon Cost Management would consume the data. 
-
 For the most part follow `How to schedule athena queries <https://aws.amazon.com/premiumsupport/knowledge-center/schedule-query-athena/>`_
 
 
@@ -81,10 +30,13 @@ Create bucket for reports
     c. Visit https://console.redhat.com/api/cost-management/v1/sources/
     d. Find your source and note down its source_uuid, **required** for Lambda scripts
 
-3. Cost and Usage reports
-    a. Create cost and usage report see: `Cost and Usage creation`_
+3. Create cost and usage reports
+    a. See: `Cost and Usage creation`_
 
-4. Create correct IAM role/policy for interacting with Lambda/Athena
+4. Configure Athena queries
+    a. See: `Configure Athena`_
+
+5. Create correct IAM role/policy for interacting with Lambda/Athena
     a. IAM Create new policy
         i. Use JSON and paste the following lambda/athena policy: `Athena-policy <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/athena-policy.rst>`_
         ii. **Note:** Be sure to update the policy bucket names from CHANGE-ME to match your BUCKET name
@@ -96,7 +48,7 @@ Create bucket for reports
         iv. Add Name/Description of Role
         v. Create
 
-5. Create athena query Lambda function
+6. Create athena query Lambda function
     a. Create function for querying athena
         i. Author from scratch
         ii. Name your function
@@ -158,7 +110,7 @@ Create bucket for reports
         return json_object
 
 
-6. Create Lambda function to post results
+7. Create Lambda function to post results
     a. Create function to post report files to Cost Management
         i. Author from scratch
         ii. Name your function
@@ -212,7 +164,7 @@ Create bucket for reports
         return resp
 
 
-7. Create two AmazonEventBridge schedules to trigger the above functions
+8. Create two AmazonEventBridge schedules to trigger the above functions
     a. Create EventBridge schedule for Athena query function
         i. Add a Name/Description
         ii. Select group default
@@ -253,3 +205,42 @@ Create bucket for reports
 * Why have two functions? - Lambda functions should be simple scripts that run within seconds, however depending on the customers data an athena query may take hours. This enables the customer to easily configure the time between each scripts cron job if extended query time is required.
 * The Lambda functions above may hit "errorMessage": ".. Task timed out after 3.04 seconds" Lambda has a default 3s timeout for scripts. On each Lambda function you can change this 3s timeout to 30s if required.
 
+
+
+Cost and Usage creation
+=======================
+
+1. From the AWS billing console select Cost & usage reports
+2. Create report
+3. Name your report
+4. Select Include resource IDs followed by Next
+5. Configure S3 bucket to store usage data
+6. Set report prefix
+7. Time Granularity: Hourly
+8. Enable report data integration for: Amazon Athena
+9. Next to review configuration and Create
+
+
+Configure Athena
+================
+
+1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_ 
+2. Make sure Athena is configured to store query results to the desired S3 bucket see `Querying <https://docs.aws.amazon.com/athena/latest/ug/querying.html>`_
+3. Once Athena is configured the following query will return the filtered dataset specific to your Red Hat commitment. The table name following the FROM keyword would be updated to match the name of the table configured in your Athena instance. The year and month can be updated to gather data specific to a particular month.
+
+.. code-block::
+
+    SELECT *
+    FROM athena_cost_and_usage
+    WHERE (
+            bill_billing_entity = 'AWS Marketplace'
+            AND line_item_legal_entity like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND line_item_line_item_description like '%Red Hat%'
+        )
+        AND year = '2022'
+        AND month = '10'
+
+4. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
