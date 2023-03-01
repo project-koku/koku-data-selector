@@ -240,6 +240,18 @@ Configure Athena
             line_item_legal_entity like '%Amazon Web Services%'
             AND line_item_line_item_description like '%Red Hat%'
         )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND line_item_line_item_description like '%RHEL%'
+        )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND line_item_line_item_description like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND line_item_line_item_description like '%RHEL%'
+        )
         AND year = '2022'
         AND month = '10'
 
