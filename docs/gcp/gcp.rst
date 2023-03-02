@@ -111,15 +111,6 @@ GCP bucket store
                 f"TO_JSON_STRING({col})" if col in ("labels", "system_labels", "project.labels") else col
                 for col in columns_list
             ]
-            # Swap out resource columns with NULLs when we are processing
-            # a non-resource-level BigQuery table
-            columns_list = [
-                f"NULL as {col.replace('.', '_')}"
-                if col in ("resource.name", "resource.global_name")
-                and "resource" not in TABLE_ID
-                else col
-                for col in columns_list
-            ]
             columns_list.append("DATE(_PARTITIONTIME) as partition_date")
             return ",".join(columns_list)
             
