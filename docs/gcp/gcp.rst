@@ -45,14 +45,13 @@ GCP bucket store
         from tempfile import NamedTemporaryFile
 
         now = datetime.datetime.now()
+        now_delta = now - relativedelta(days=5)
         year = now.strftime("%Y")
         month = now.strftime("%m")
         day = now.strftime("%d")
         report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
-        partition_date = f"{year}-{month}-{day}"
-
-        scan_start = now - relativedelta(days=10)
-        scan_end = now
+        partition_date_end = f"{year}-{month}-{day}"
+        partition_date_start = f"{now_delta.strftime("%Y-%m-%y")
 
         # Required vars to update
         SOURCE_UUID = "CHANGE-ME"               # Cost management source_uuid
@@ -112,20 +111,11 @@ GCP bucket store
                 f"TO_JSON_STRING({col})" if col in ("labels", "system_labels", "project.labels") else col
                 for col in columns_list
             ]
-            # Swap out resource columns with NULLs when we are processing
-            # a non-resource-level BigQuery table
-            columns_list = [
-                f"NULL as {col.replace('.', '_')}"
-                if col in ("resource.name", "resource.global_name")
-                and "resource" not in TABLE_ID
-                else col
-                for col in columns_list
-            ]
             columns_list.append("DATE(_PARTITIONTIME) as partition_date")
             return ",".join(columns_list)
             
         def create_reports():
-            query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) = '{partition_date}' AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR  service.description LIKE '%Red Hat%'"
+            query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) BETWEEN '{partition_date_start}' AND {partition_date_end} AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR  service.description LIKE '%Red Hat%'"
             client = bigquery.Client()
             query_job = client.query(query).result()
             column_list = gcp_big_query_columns.copy()
@@ -182,3 +172,8 @@ GCP bucket store
 
 
 **GOTCHAS:**
+- Why do we query a 5 day rolling window? 
+    - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
+
+- Why don't we just query a full invoice month?
+    - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
