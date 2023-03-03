@@ -22,7 +22,7 @@ Azure resource group and storage account
 
 
 4. Create billing export
-    a. See sections 1.1 and 1.3 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_microsoft_azure_source_to_cost_management/assembly-adding-azure-sources>`_ NOTE: Since Cost Managment does not need direct access you can skip 1.2 
+    a. See section 1.3 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2023/html/adding_a_microsoft_azure_source_to_cost_management/assembly-adding-azure-sources#configuring-an-azure-daily-export-schedule_adding-an-azure-source>`_ during creation select a storage account or create a new one.
     b. Make a note of the storage account in use for the cost export **Required** for function
 
 
