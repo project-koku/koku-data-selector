@@ -12,3 +12,4 @@ Full documentation is available in `docs folder`_.
 
 
 .. _docs folder: docs/
+

@@ -58,57 +58,8 @@ Create bucket for reports
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following code below updating the DATABASE and BUCKET Vars
+        ii. Drop the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ updating the DATABASE and BUCKET Vars
         iii. Hit Deploy then Test and see execution results
-
-
-.. code-block::
-
-    import boto3
-    import uuid
-    import json
-    from datetime import datetime
-
-    now = datetime.now()
-    year = now.strftime("%Y")
-    month = now.strftime("%m")
-    day = now.strftime("%d")
-
-    # Vars to Change!
-    source_uuid = "CHANGEME"                                    # Cost Management source_uuid
-    bucket = 'CHANGEME'                                         # Bucket created for query results
-    database = 'athenacurcfn_athena_cost_and_usage'             # Database to execute athena queries
-    output=f's3://{bucket}/{year}/{month}/{day}/{uuid.uuid4()}' # Output location for query results
-
-    # Athena query
-    query = f"SELECT * FROM {database}.athena_cost_and_usage WHERE ((bill_billing_entity = 'AWS Marketplace' AND line_item_legal_entity like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%RHEL%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%RHEL%')) AND year = '{year}' AND month = '{month}'"
-
-    def lambda_handler(event, context):
-        # Initiate Boto3 athena Client
-        athena_client = boto3.client('athena')
-        
-        # Trigger athena query
-        response = athena_client.start_query_execution(
-            QueryString=query,
-            QueryExecutionContext={
-                'Database': database
-            },
-            ResultConfiguration={
-                'OutputLocation': output
-            }
-        )
-        
-        # Save query execution to s3 object
-        s3 = boto3.client('s3')
-        json_object = {"source_uuid": source_uuid, "bill_year": year, "bill_month": month, "query_execution_id": response.get("QueryExecutionId"), "result_prefix": output}
-        s3.put_object(
-            Body=json.dumps(json_object),
-            Bucket=bucket,
-            Key='query-data.json'
-        )
-        
-        return json_object
-
 
 7. Create Lambda function to post results
     a. Create function to post report files to Cost Management
@@ -120,49 +71,8 @@ Create bucket for reports
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following code below updating the BUCKET, USER, PASS Vars
+        ii. Drop the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
         iii. Hit Deploy then Test and see execution results
-
-.. code-block::
-
-    import boto3
-    import json
-    import requests
-
-    bucket = "CHANGEME"  # Bucket for athena query results
-    USER = "CHANGEME"    # Cost Management Username
-    PASS = "CHANGEME"    # Cost Management Password
-
-    def lambda_handler(event, context):
-        # Initiate Boto3 s3 and fetch query file
-        s3_resource = boto3.resource('s3')
-        json_content = json.loads(s3_resource.Object(bucket, 'query-data.json').get()['Body'].read().decode('utf-8'))
-        
-        # Initiate Boto3 athena Client and attempt to fetch athena results
-        athena_client = boto3.client('athena')
-        try:
-            athena_results = athena_client.get_query_execution(QueryExecutionId=json_content["query_execution_id"])
-        except Exception as e:
-            return f"Error fetching athena query results: {e} \n Consider increasing the time between running and fetching results"
-
-        reports_list = []
-        prefix = json_content["result_prefix"].split(f'{bucket}/')[-1]
-        
-        # Initiate Boto3 s3 client
-        s3_client = boto3.client('s3')
-        result_data = s3_client.list_objects(Bucket=bucket, Prefix=prefix)
-        for item in result_data.get("Contents"):
-            if item.get("Key").endswith(".csv"):
-                print(item.get("Key"))
-                reports_list.append(item.get("Key"))
-                
-        # Post results to console.redhat.com API
-        url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-        data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
-        resp = requests.post(url, data=data, auth=(USER, PASS))
-
-        return resp
-
 
 8. Create two AmazonEventBridge schedules to trigger the above functions
     a. Create EventBridge schedule for Athena query function
