@@ -1,0 +1,37 @@
+import boto3
+import json
+import requests
+
+bucket = "CHANGEME"  # Bucket for athena query results
+USER = "CHANGEME"    # Cost Management Username
+PASS = "CHANGEME"    # Cost Management Password
+
+def lambda_handler(event, context):
+    # Initiate Boto3 s3 and fetch query file
+    s3_resource = boto3.resource('s3')
+    json_content = json.loads(s3_resource.Object(bucket, 'query-data.json').get()['Body'].read().decode('utf-8'))
+    
+    # Initiate Boto3 athena Client and attempt to fetch athena results
+    athena_client = boto3.client('athena')
+    try:
+        athena_results = athena_client.get_query_execution(QueryExecutionId=json_content["query_execution_id"])
+    except Exception as e:
+        return f"Error fetching athena query results: {e} \n Consider increasing the time between running and fetching results"
+
+    reports_list = []
+    prefix = json_content["result_prefix"].split(f'{bucket}/')[-1]
+    
+    # Initiate Boto3 s3 client
+    s3_client = boto3.client('s3')
+    result_data = s3_client.list_objects(Bucket=bucket, Prefix=prefix)
+    for item in result_data.get("Contents"):
+        if item.get("Key").endswith(".csv"):
+            print(item.get("Key"))
+            reports_list.append(item.get("Key"))
+            
+    # Post results to console.redhat.com API
+    url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
+    data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
+    resp = requests.post(url, data=data, auth=(USER, PASS))
+
+    return resp
