@@ -48,7 +48,6 @@ GCP bucket store
 
 
 **GOTCHAS:**
-- Why do we query a 5 day rolling window?
-    - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
-- Why don't we just query a full invoice month?
-    - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
+
+* Why do we query a 5 day rolling window? - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
+* Why don't we just query a full invoice month? - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
