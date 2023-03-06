@@ -31,8 +31,8 @@ Azure resource group and storage account
         i. Set the Time trigger function to run once a day
 
     b. Now you have a basic function created we need to add a few things
-        i. Create a **requirements.txt** and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/requirements.txt>`_
-        ii. Replace the Trigger function code with `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
+        i. Create a **requirements.txt** and add `these <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/requirements.txt>`_
+        ii. Replace the Trigger function with the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
         iii. **NOTE** Be sure to update the required vars
         iv. Deploy the function to Azure
 

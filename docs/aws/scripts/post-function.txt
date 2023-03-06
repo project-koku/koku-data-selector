@@ -31,7 +31,7 @@ def lambda_handler(event, context):
             
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
-    resp = requests.post(url, data=data, auth=(USER, PASS))
+    json_data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
+    resp = requests.post(url, json=json_data, auth=(USER, PASS))
 
     return resp

@@ -101,8 +101,8 @@ def create_reports():
 def post_data(files_list):
     # Post CSV's to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    data = {"source": SOURCE_UUID, "reports_list": files_list, "bill_year": year, "bill_month": month}
-    resp = requests.post(url, data=data, auth=(USER, PASS))
+    json_data = {"source": SOURCE_UUID, "reports_list": files_list, "bill_year": year, "bill_month": month}
+    resp = requests.post(url, json=json_data, auth=(USER, PASS))
     return resp
 
 def get_filtered_data(request):

@@ -10,7 +10,19 @@ GCP bucket store
     a. Follow this `instructions <https://cloud.google.com/storage/docs/creating-buckets>`_
 
 2. Grant access to bucket data
-    a. Add `billing-export@red-hat-cost-management.iam.gserviceaccount.com` giving the 'Storage Object Viewer' role
+    a. From IAM & Admin - Roles
+    b. Add new role
+    c. Add the following permissions:
+
+    .. code::
+
+        storage.objects.get
+        storage.objects.list
+
+    d. Create role
+    e. Navigate to IAM and add new member
+    f. Add the following member: `billing-export@red-hat-cost-management.iam.gserviceaccount.com`
+    g. Select the Role created above
 
 3. Create Cost Management source
     a. Follow sources wizard in console.redhat.com
@@ -20,7 +32,7 @@ GCP bucket store
     e. Find your source and note down its source_uuid, **required** for GCP function
 
 4. Create billing export
-    a. see sections 1.4 and 1.5 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2022/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources>`_
+    a. see sections 1.4 and 1.5 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2023/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources#creating-a-dataset-gcp_adding-gcp-sources>`_
 
 4. Setup function to post reports
     a. From Cloud Functions select create function
