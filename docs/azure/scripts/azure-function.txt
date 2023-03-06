@@ -27,7 +27,7 @@ def main(mytimer: func.TimerRequest) -> None:
     PASS = "CHANGE-ME"                                                      # Cost management password
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
-    filtered_data_account_url = "https://CHANGE-ME.blob.core.windows.net"   # Filtered data storage account url
+    filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
 
     # Create the BlobServiceClient object
@@ -60,8 +60,8 @@ def main(mytimer: func.TimerRequest) -> None:
     
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    data = {"source": source_uuid, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
-    resp = requests.post(url, data=data, auth=(USER, PASS))
+    json_data = {"source": source_uuid, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
+    resp = requests.post(url, json=json_data, auth=(USER, PASS))
     logging.info(f'Post result: {resp}')
 
     if mytimer.past_due:
