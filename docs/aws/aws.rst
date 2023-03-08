@@ -58,7 +58,7 @@ Create bucket for reports
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ updating the DATABASE and BUCKET Vars
+        ii. Drop the following `query_code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ updating the SOURCE_UUID, BUCKET and DATABASE Vars
         iii. Hit Deploy then Test and see execution results
 
 7. Create Lambda function to post results
@@ -71,8 +71,17 @@ Create bucket for reports
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
-        iii. Hit Deploy then Test and see execution results
+        ii. Drop the following `post_code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
+        iii. Using AWS Secrets Manager for credentials: `Secrets manager credentials`_ Uncomment the following lines and update SECRET_NAME:
+
+        .. code-block::
+
+            secret_name = "CHANGEME"
+            region_name = "us-east-1"
+            secret = get_credentials(secret_name, region_name)
+            json_creds = json.loads(secret)
+
+        iv. Hit Deploy then Test and see execution results
 
 8. Create two AmazonEventBridge schedules to trigger the above functions
     a. Create EventBridge schedule for Athena query function
@@ -166,3 +175,29 @@ Configure Athena
         AND month = '10'
 
 4. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
+
+
+Secrets Manager Credentials
+===========================
+
+1. From AWS Secrets Manager - Store a new secret
+2. Secret type: Other type of secret
+3. Create the following Keys:
+    i. username
+    ii. password
+4. Populate the values with the appropriate username/password
+5. Name your secret
+6. Continue through and store your secret
+7. Update the Role created for your Lambda functions and Include
+
+.. code-block::
+
+    {
+        "Sid": "VisualEditor3",
+        "Effect": "Allow",
+        "Action": [
+            "secretsmanager:GetSecretValue",
+            "secretsmanager:DescribeSecret"
+        ],
+        "Resource": "*"
+    }
