@@ -11,7 +11,7 @@ day = now.strftime("%d")
 # Vars to Change!
 source_uuid = "CHANGEME"                                    # Cost Management source_uuid
 bucket = 'CHANGEME'                                         # Bucket created for query results
-database = 'athenacurcfn_athena_cost_and_usage'             # Database to execute athena queries
+database = 'CHAGNEME'                                       # Database to execute athena queries
 output=f's3://{bucket}/{year}/{month}/{day}/{uuid.uuid4()}' # Output location for query results
 
 # Athena query
