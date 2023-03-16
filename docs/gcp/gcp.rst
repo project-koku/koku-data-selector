@@ -18,6 +18,7 @@ GCP bucket store
 
         storage.objects.get
         storage.objects.list
+        storage.buckets.get
 
     d. Create role
     e. Navigate to IAM and add new member
