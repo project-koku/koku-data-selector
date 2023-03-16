@@ -2,6 +2,7 @@ import csv
 import datetime
 import logging
 import uuid
+import os
 import requests
 from google.cloud import bigquery
 from google.cloud import storage
@@ -19,13 +20,13 @@ partition_date_end = f"{year}-{month}-{day}"
 partition_date_start = f"{now_delta.strftime("%Y-%m-%y")
 
 # Required vars to update
-SOURCE_UUID = "CHANGE-ME"               # Cost management source_uuid
-USER = "CHANGE-ME"                      # Cost management username
-PASS = "CHANGE-ME"                      # Cost management password
-BUCKET = "CHANGE-ME"                    # Filtered data GCP Bucket
-PROJECT_ID = "CHANGE-ME"                # Your project ID
-DATASET = "CHANGE-ME"                   # Your dataset name
-TABLE_ID = "CHANGE-ME"                  # Your table ID
+USER = os.getenv('username')          # Cost management username
+PASS = os.getenv('password')          # Cost management password
+SOURCE_ID = "CHANGE-ME"               # Cost management source_uuid
+BUCKET = "CHANGE-ME"                  # Filtered data GCP Bucket
+PROJECT_ID = "CHANGE-ME"              # Your project ID
+DATASET = "CHANGE-ME"                 # Your dataset name
+TABLE_ID = "CHANGE-ME"                # Your table ID
 
 gcp_big_query_columns = [
     "billing_account_id",

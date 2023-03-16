@@ -22,16 +22,16 @@ def main(mytimer: func.TimerRequest) -> None:
     output_blob_name=f"{year}/{month}/{day}/{uuid.uuid4()}.csv"
 
     # Required vars to update
-    source_uuid = "CHANGE-ME"                                               # Cost management source_uuid
-    USER = "CHANGE-ME"                                                      # Cost management username
-    PASS = "CHANGE-ME"                                                      # Cost management password
+    USER = os.getenv('UsernameFromVault')                                   # Cost management username
+    PASS = os.getenv('PasswordFromVault')                                   # Cost management password
+    source_id = "CHANGE-ME"                                                 # Cost management source_uuid
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
 
     # Create the BlobServiceClient object
-    blob_service_client = BlobServiceClient(filtered_data_account_url, credential=default_credential)
+    blob_service_client = BlobServiceClient(filtered_data_store, credential=default_credential)
     container_client = ContainerClient(cost_export_store, credential=default_credential, container_name=cost_export_container)
 
     blob_list = container_client.list_blobs()
@@ -60,7 +60,7 @@ def main(mytimer: func.TimerRequest) -> None:
     
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": source_uuid, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
+    json_data = {"source": source_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, auth=(USER, PASS))
     logging.info(f'Post result: {resp}')
 
