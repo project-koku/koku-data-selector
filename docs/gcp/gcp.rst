@@ -42,11 +42,11 @@ GCP bucket store
     d. Optional `Secrets manager credentials`_
         i. Within runtime, build, connections, security settings - Go to security
         ii. Click reference secret
-        ii. Select your secret
-        iii. Set 'Exposed as environment variable'
-        iv. Select secret version or latest
-        v. Click done
-        vi. Repeat for additional secrets
+        iii. Select your secret
+        iv. Set 'Exposed as environment variable'
+        v. Select secret version or latest
+        vi. Click done
+        vii. Repeat for additional secrets
     e. Hit save and copy your Trigger URL then Next
     f. Select python 3.9 runtime
     g. Set Entry Point to **get_filtered_data**
@@ -79,6 +79,6 @@ Secrets Manager Credentials
 
 1. From GCP Secrets Manager 
 2. Create two new secrets one for username/password
-2. Name your secret
-3. Add secret value
-4. Hit create
+3. Name your secret
+4. Add secret value
+5. Hit create
