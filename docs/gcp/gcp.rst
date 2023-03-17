@@ -35,18 +35,26 @@ GCP bucket store
 4. Create billing export
     a. see sections 1.4 and 1.5 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2023/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources#creating-a-dataset-gcp_adding-gcp-sources>`_
 
-4. Setup function to post reports
+5. Setup function to post reports
     a. From Cloud Functions select create function
     b. Name your function
     c. Select HTTP trigger
-    d. Hit save and copy your Trigger URL then Next
-    e. Select python 3.9 runtime
-    f. Set Entry Point to **get_filtered_data**
-    g. Paste in the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt>`_, make sure to update all vars with CHANGE-ME values
-    h. Select the requirements.py file and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
-    i. Finally hit Deploy
+    d. Optional `Secrets manager credentials`_
+        i. Within runtime, build, connections, security settings - Go to security
+        ii. Click reference secret
+        ii. Select your secret
+        iii. Set 'Exposed as environment variable'
+        iv. Select secret version or latest
+        v. Click done
+        vi. Repeat for additional secrets
+    e. Hit save and copy your Trigger URL then Next
+    f. Select python 3.9 runtime
+    g. Set Entry Point to **get_filtered_data**
+    h. Paste in the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt>`_, make sure to update all vars with CHANGE-ME values
+    i. Select the requirements.py file and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
+    j. Finally hit Deploy
 
-5. Setup cloud scheduler to trigger your function
+6. Setup cloud scheduler to trigger your function
     a. Navigate to Cloud scheduler
     b. Click schedule a job
     c. Name your schedule
@@ -64,3 +72,13 @@ GCP bucket store
 
 * Why do we query a 5 day rolling window? - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
 * Why don't we just query a full invoice month? - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
+
+
+Secrets Manager Credentials
+===========================
+
+1. From GCP Secrets Manager 
+2. Create two new secrets one for username/password
+2. Name your secret
+3. Add secret value
+4. Hit create

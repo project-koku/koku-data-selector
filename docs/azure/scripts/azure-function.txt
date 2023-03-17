@@ -24,7 +24,7 @@ def main(mytimer: func.TimerRequest) -> None:
     # Required vars to update
     USER = os.getenv('UsernameFromVault')                                   # Cost management username
     PASS = os.getenv('PasswordFromVault')                                   # Cost management password
-    source_id = "CHANGE-ME"                                                 # Cost management source_uuid
+    source_id = "CHANGE-ME"                                                 # Cost management source_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url

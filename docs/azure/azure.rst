@@ -48,4 +48,33 @@ Azure resource group and storage account
             Storage Blob Data Contributor
             Storage Queue Data Contributor
 
-**GOTCHAS:**
+    d. Optionally store credentials in vault: `Key vault Credentials`_
+        i. Navigate to your function
+        ii. Select Configuration under settings in the blade
+        iii. Click New application setting
+        iv. Name: *UsernameFromVault*
+        v. Value: *@Microsoft.KeyVault(SecretUri=YOUR-USER-SECRET-URI)*
+        vi. Save
+        vii. Add Another application setting for: *PasswordFromVault*
+        viii. Value: *@Microsoft.KeyVault(SecretUri=YOUR-PASSWORD-SECRET-URI)*
+        ix. Make sure to Replace the URI's with your Secret URI's 
+
+Key vault Credentials
+=====================
+
+1. From Azure key vaults - Create secret
+2. Select the same resource group your function resides in
+3. Set Key Vault Name
+4. Within Access policy - Create new access policy
+    i. Select Secret Management from templates
+    ii. For principal find your Created function
+    iii. Review and create policy
+
+7. Review and create Vault
+8. Click on new vault and select secrets in the blade
+9. Generate/import two new secrets
+    i. Secret names as follows *UsernameFromVault* and *PasswordFromVault*
+    ii. Giving them a secret value matching your console.redhat.com username and password respectively
+
+10. Click on each secret - select the version
+11. Copy the secret Identifier URI
