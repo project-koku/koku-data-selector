@@ -17,12 +17,12 @@ month = now.strftime("%m")
 day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
 partition_date_end = f"{year}-{month}-{day}"
-partition_date_start = f"{now_delta.strftime("%Y-%m-%y")
+partition_date_start = f"{now_delta.strftime('%Y-%m-%y')}"
 
 # Required vars to update
 USER = os.getenv('username')          # Cost management username
 PASS = os.getenv('password')          # Cost management password
-SOURCE_ID = "CHANGE-ME"               # Cost management source_uuid
+SOURCE_ID = "CHANGE-ME"               # Cost management source_id
 BUCKET = "CHANGE-ME"                  # Filtered data GCP Bucket
 PROJECT_ID = "CHANGE-ME"              # Your project ID
 DATASET = "CHANGE-ME"                 # Your dataset name
@@ -102,7 +102,7 @@ def create_reports():
 def post_data(files_list):
     # Post CSV's to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": SOURCE_UUID, "reports_list": files_list, "bill_year": year, "bill_month": month}
+    json_data = {"source": SOURCE_ID, "reports_list": files_list, "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, auth=(USER, PASS))
     return resp
 
