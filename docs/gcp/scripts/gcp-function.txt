@@ -16,8 +16,9 @@ year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
-partition_date_end = f"{year}-{month}-{day}"
-partition_date_start = f"{now_delta.strftime('%Y-%m-%y')}"
+partition_date_end = now.date()
+partition_date_start = now_delta.date()
+partition_range = f"{year}{month}{now_delta.strftime('%d')}-{day}"
 
 # Required vars to update
 USER = os.getenv('username')          # Cost management username
@@ -90,7 +91,7 @@ def create_reports():
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET)
     for i, rows in enumerate(batch(query_job, BATCH_SIZE)):
-        csv_file = f"{report_prefix}/{partition_date}_{str(i)}.csv"
+        csv_file = f"{report_prefix}/{partition_range}_{str(i)}.csv"
         files_list.append(csv_file)
         blob = bucket.blob(csv_file)
         with blob.open(mode='w') as f:
