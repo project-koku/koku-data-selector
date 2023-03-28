@@ -49,7 +49,6 @@ def lambda_handler(event, context):
     result_data = s3_client.list_objects(Bucket=bucket, Prefix=prefix)
     for item in result_data.get("Contents"):
         if item.get("Key").endswith(".csv"):
-            print(item.get("Key"))
             reports_list.append(item.get("Key"))
             
     # Post results to console.redhat.com API
