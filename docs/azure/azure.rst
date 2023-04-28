@@ -27,7 +27,7 @@ Azure resource group and storage account
 
 
 5. Setup function to post reports
-    a. Create Azure Time Trigger function using `VSCode <https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-vs-code?tabs=nodejs#debugging-functions-locally>`_
+    a. Create Azure Time Trigger function using `VSCode <https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-configuration>`_
         i. Set the Time trigger function to run once a day
 
     b. Now you have a basic function created we need to add a few things
