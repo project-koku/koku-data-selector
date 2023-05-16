@@ -50,7 +50,7 @@ GCP bucket store
     e. Hit save and copy your Trigger URL then Next
     f. Select python 3.9 runtime
     g. Set Entry Point to **get_filtered_data**
-    h. Paste in the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt>`_, make sure to update all vars with CHANGE-ME values
+    h. Add `Function Code and Queries`_, make sure to update all vars with CHANGE-ME values
     i. Select the requirements.py file and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
     j. Finally hit Deploy
 
@@ -83,3 +83,16 @@ Secrets Manager Credentials
 3. Name your secret
 4. Add secret value
 5. Hit create
+
+Function Code and Queries
+=========================
+* For standard Hybrid Commited Spend queries use the default `gcp_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt>`_
+* For custom queries non HCS we need to edit line 85 in the above function code.
+    * Initial query to grab all data: **query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) BETWEEN '{partition_date_start}' AND {partition_date_end}"**
+    * To filter the data add a **WHERE** clause, for example **WHERE service.description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
+    * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
+    * Examples:
+        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
+        2. **project.id**, **project.number** or **project.name** Used to filter specific projects based on ID, Number or Name.
+        3. **location.region** Used to filter data in a specifc region.
+    * You can preview your data in bigquery to help build your desired function query. Once built just replace line 85 with your revised query.
