@@ -32,7 +32,7 @@ Azure resource group and storage account
 
     b. Now you have a basic function created we need to add a few things
         i. Create a **requirements.txt** and add `these <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/requirements.txt>`_
-        ii. Replace the Trigger function with the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
+        ii. Add `Function Code and Queries`_,
         iii. **NOTE** Be sure to update the required vars
         iv. Deploy the function to Azure
 
@@ -78,3 +78,21 @@ Key vault Credentials
 
 10. Click on each secret - select the version
 11. Copy the secret Identifier URI
+
+
+Function Code and Queries
+=========================
+* For standard Hybrid Commited Spend queries use the default `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
+* For custom queries non HCS we need to edit line 53 in the above function code.
+    * Initial query to grab all data: **filtered_data = df**
+    * To filter the data you need to add some dataframe filtering, see Examples:
+        * Exact matching: **df.loc[(df["publisherType"] == "Marketplace")]** would filter out all data that does not have a publisherType of Marketplace.
+        * Contains: **df.loc[df["publisherName"].astype(str).str.contains("Red Hat")]** would filter all data that does not contain Red Hat in the publisherName.
+    * It's also possible to stack these by using **&** (for AND) and **|** (for OR) with your **df.loc** clause.
+    * Examples:
+        1. **subscriptionId** Used to filter specific subscriptions.
+        2. **resourceGroup** Used to filter specific resource groups.
+        3. **resourceLocation** Used to filter data in a specifc region.
+        4. **resourceType**, **instanceId** Used to filter resource types or by a specifc instance.
+        5. **serviceName**, **serviceTier**, **meterCategory** and **meterSubcategory** can be used to filter specifc service types.
+    * Once your custom query is built just replace line 18 with your revised version.
