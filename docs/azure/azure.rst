@@ -95,4 +95,4 @@ Function Code and Queries
         3. **resourceLocation** Used to filter data in a specifc region.
         4. **resourceType**, **instanceId** Used to filter resource types or by a specifc instance.
         5. **serviceName**, **serviceTier**, **meterCategory** and **meterSubcategory** can be used to filter specifc service types.
-    * Once your custom query is built just replace line 18 with your revised version.
+    * Once your custom query is built just replace line 53 with your revised version.
