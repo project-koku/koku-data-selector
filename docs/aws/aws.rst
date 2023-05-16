@@ -58,7 +58,7 @@ Create bucket for reports
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following `query_code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ updating the SOURCE_UUID, BUCKET and DATABASE Vars
+        ii. Add `Function Code and Athena Queries`_, make sure to update the SOURCE_UUID, BUCKET and DATABASE Vars
         iii. Hit Deploy then Test and see execution results
 
 7. Create Lambda function to post results
@@ -201,3 +201,18 @@ Secrets Manager Credentials
         ],
         "Resource": "*"
     }
+
+
+Function Code and Athena Queries
+================================
+* For standard Hybrid Commited Spend queries use the default `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_
+* For custom queries non HCS we need to edit line 18 in the above function code.
+    * Initial query to grab all data: **query = f"SELECT * FROM {database}.koku_athena WHERE year = '{year}' AND month = '{month}'"**
+    * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
+    * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
+    * Examples:
+        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
+        2. **line_item_product_code**, **line_item_resource_id** or **product_product_name** Used to filter specific product/services based on Code, resource_id or Name.
+        3. **product_location**, **product_region** Used to filter data in a specifc region.
+        4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specifc instance.
+    * Once your custom query is built just replace line 18 with your revised version.
