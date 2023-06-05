@@ -7,6 +7,15 @@ now = datetime.now()
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
+file_name = 'query-data.json'
+
+# Finalized data
+# Appends finalized data to the last day of the previous month in S3
+
+# last_month = now.replace(day=1) - timedelta(days=1)
+# month = last_month.strftime("%m")
+# day = last_month.strftime("%d")
+# file_name = 'finalized-data.json'
 
 # Vars to Change!
 source_uuid = "CHANGEME"                                    # Cost Management source_uuid
@@ -20,7 +29,7 @@ query = f"SELECT * FROM {database}.koku_athena WHERE ((bill_billing_entity = 'AW
 def lambda_handler(event, context):
     # Initiate Boto3 athena Client
     athena_client = boto3.client('athena')
-    
+
     # Trigger athena query
     response = athena_client.start_query_execution(
         QueryString=query,
@@ -31,14 +40,14 @@ def lambda_handler(event, context):
             'OutputLocation': output
         }
     )
-    
+
     # Save query execution to s3 object
     s3 = boto3.client('s3')
     json_object = {"source_uuid": source_uuid, "bill_year": year, "bill_month": month, "query_execution_id": response.get("QueryExecutionId"), "result_prefix": output}
     s3.put_object(
         Body=json.dumps(json_object),
         Bucket=bucket,
-        Key='query-data.json'
+        Key=file_name
     )
-    
+
     return json_object

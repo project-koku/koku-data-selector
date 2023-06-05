@@ -90,7 +90,7 @@ Create bucket for reports
         iii. Occurrence: Recurring schedule
         iv. Type: Cron-based
         v. Set cron schedule **(0 9 * * ? *)** This will be 9AM Every day
-        vi. Set flexible time window 
+        vi. Set flexible time window
         vii. NEXT
         viii. Target detail: AWS Lambda invoke
         ix. Select lambda function previously created
@@ -107,7 +107,7 @@ Create bucket for reports
         iii. Occurrence: Recurring schedule
         iv. Type: Cron-based
         v. Set cron schedule **(0 21 * * ? *)** This will be 9PM Every day
-        vi. Set flexible time window 
+        vi. Set flexible time window
         vii. NEXT
         viii. Target detail: AWS Lambda invoke
         ix. Select lambda function previously created
@@ -123,6 +123,59 @@ Create bucket for reports
 
 * Why have two functions? - Lambda functions should be simple scripts that run within seconds, however depending on the customers data an athena query may take hours. This enables the customer to easily configure the time between each scripts cron job if extended query time is required.
 * The Lambda functions above may hit "errorMessage": ".. Task timed out after 3.04 seconds" Lambda has a default 3s timeout for scripts. On each Lambda function you can change this 3s timeout to 30s if required.
+
+
+Collect Finalized Data
+======================
+1. Create athena query Lambda function
+    a. Create function for querying athena
+        i. Author from scratch
+        ii. Name your function
+        iii. Select python runtime
+        iv. Architecture x86_64
+        v. Permissions: select role created above
+        vi. Hit create
+    b. Write some code for collecting the finalized data
+        i. Select code tab in the lambda function
+        ii. Add `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ , make sure to update the SOURCE_UUID, BUCKET and DATABASE Vars
+        iii. Note: If you customized your Athena queries from the non stardard ones provided, you will need to do the same here.
+        iv. Uncomment the following code:
+
+        .. code-block::
+
+            # last_month = now.replace(day=1) - timedelta(days=1)
+            # month = last_month.strftime("%m")
+            # day = last_month.strftime("%d")
+            # file_name = 'finalized-data.json'
+
+        iv. Hit Deploy then Test and see execution results
+2. Create Lambda function to post results
+    a. Create function to post report files to Cost Management
+        i. Author from scratch
+        ii. Name your function
+        iii. Select python runtime
+        iv. Architecture x86_64
+        v. Permissions: select role created above
+        vi. Hit create
+    b. Write some code!
+        i. Select code tab in the lambda function
+        ii. Drop the following `post_code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
+        iii. Using AWS Secrets Manager for credentials: `Secrets manager credentials`_ Uncomment the following lines and update SECRET_NAME:
+
+        .. code-block::
+
+            secret_name = "CHANGEME"
+            region_name = "us-east-1"
+            secret = get_credentials(secret_name, region_name)
+            json_creds = json.loads(secret)
+
+        iv. Also, make sure to **uncomment** the filename change so that we don't overwrite the daily files.
+
+        .. code-block::
+
+            # file_name = 'finalized_data.json'
+
+        iv. Hit Deploy then Test and see execution results
 
 
 
@@ -143,7 +196,7 @@ Cost and Usage creation
 Configure Athena
 ================
 
-1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_ 
+1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_
 2. Make sure Athena is configured to store query results to the desired S3 bucket see `Querying <https://docs.aws.amazon.com/athena/latest/ug/querying.html>`_
 3. Once Athena is configured the following query will return the filtered dataset specific to your Red Hat commitment. The table name following the FROM keyword would be updated to match the name of the table configured in your Athena instance. The year and month can be updated to gather data specific to a particular month.
 

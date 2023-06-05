@@ -19,6 +19,14 @@ def main(mytimer: func.TimerRequest) -> None:
     year = now.strftime("%Y")
     month = now.strftime("%m")
     day = now.strftime("%d")
+
+    # Finalized data
+    # Appends finalized data to the last day of the previous month
+
+    # last_month = now.replace(day=1) - timedelta(days=1)
+    # month = last_month.strftime("%m")
+    # day = last_month.strftime("%d")
+
     output_blob_name=f"{year}/{month}/{day}/{uuid.uuid4()}.csv"
 
     # Required vars to update
@@ -57,7 +65,7 @@ def main(mytimer: func.TimerRequest) -> None:
     blob_client = blob_service_client.get_blob_client(container=filtered_data_container, blob=output_blob_name)
 
     blob_client.upload_blob(filtered_data_csv, overwrite=True)
-    
+
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
     json_data = {"source": source_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
