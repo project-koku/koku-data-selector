@@ -35,7 +35,7 @@ file_name = 'query_data.json'
 def lambda_handler(event, context):
     # Initiate Boto3 s3 and fetch query file
     s3_resource = boto3.resource('s3')
-    json_content = json.loads(s3_resource.Object(bucket, finalized_data).get()['Body'].read().decode('utf-8'))
+    json_content = json.loads(s3_resource.Object(bucket, file_name).get()['Body'].read().decode('utf-8'))
 
     # Initiate Boto3 athena Client and attempt to fetch athena results
     athena_client = boto3.client('athena')
