@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 
 now = datetime.datetime.now()
 now_delta = now - relativedelta(days=5)
+query_export_time = now - relativedelta(days=1)
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
@@ -82,7 +83,7 @@ def build_query_select_statement():
     return ",".join(columns_list)
     
 def create_reports():
-    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) BETWEEN '{date_start}' AND '{date_end}'"
+    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) BETWEEN '{date_start}' AND '{date_end}' and Date(export_time) = '{query_export_time.date()}'"
     print(query)
     client = bigquery.Client()
     query_job = client.query(query).result()
