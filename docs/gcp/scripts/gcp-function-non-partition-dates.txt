@@ -1,7 +1,6 @@
 import csv
 import datetime
 import logging
-import uuid
 import os
 import requests
 from google.cloud import bigquery
@@ -16,7 +15,7 @@ query_export_time = now - relativedelta(days=1)
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
-report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
+report_prefix=f"{year}/{month}/{day}/export_time_{query_export_time.strftime('%Y-%m-%d')}"
 date_end = now.date()
 date_start = now_delta.date()
 date_range = f"{year}{month}{now_delta.strftime('%d')}-{day}"
