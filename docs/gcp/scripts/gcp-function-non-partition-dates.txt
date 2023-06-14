@@ -1,6 +1,5 @@
 import csv
 import datetime
-import logging
 import uuid
 import os
 import requests
@@ -8,17 +7,14 @@ from google.cloud import bigquery
 from google.cloud import storage
 from itertools import islice
 from dateutil.relativedelta import relativedelta
-from tempfile import NamedTemporaryFile
 
+query_range = 5
 now = datetime.datetime.now()
-now_delta = now - relativedelta(days=5)
+delta = now - relativedelta(days=query_range)
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
-date_end = now.date()
-date_start = now_delta.date()
-date_range = f"{year}{month}{now_delta.strftime('%d')}-{day}"
 
 # Required vars to update
 USER = os.getenv('username')          # Cost management username
@@ -81,35 +77,36 @@ def build_query_select_statement():
     columns_list.append("DATE(usage_start_time) as partition_date")
     return ",".join(columns_list)
     
-def create_reports():
-    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) BETWEEN '{date_start}' AND '{date_end}'"
-    print(query)
+def create_reports(query_date):
+    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) = '{query_date}' ORDER BY usage_start_time"
     client = bigquery.Client()
     query_job = client.query(query).result()
     column_list = gcp_big_query_columns.copy()
     column_list.append("partition_date")
-    files_list = []
+    daily_files = []
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET)
     for i, rows in enumerate(batch(query_job, BATCH_SIZE)):
-        csv_file = f"{report_prefix}/{date_range}_{str(i)}.csv"
-        files_list.append(csv_file)
+        csv_file = f"{report_prefix}/{query_date}_part_{str(i)}.csv"
+        daily_files.append(csv_file)
         blob = bucket.blob(csv_file)
         with blob.open(mode='w') as f:
             writer = csv.writer(f)
             writer.writerow(column_list)
             writer.writerows(rows)
-    return files_list
+    return daily_files
 
 def post_data(files_list):
     # Post CSV's to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
     json_data = {"source": SOURCE_ID, "reports_list": files_list, "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, auth=(USER, PASS))
-    print(json_data)
     return resp
 
 def get_filtered_data(request):
-    files_list = create_reports()
+    files_list = []
+    query_dates = [delta + datetime.timedelta(days=x) for x in range(query_range)]
+    for query_date in query_dates:
+        files_list += create_reports(query_date.date())
     resp = post_data(files_list)
     return f'Files posted! {resp}'

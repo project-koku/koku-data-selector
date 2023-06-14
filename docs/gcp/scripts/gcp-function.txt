@@ -1,6 +1,5 @@
 import csv
 import datetime
-import logging
 import uuid
 import os
 import requests
@@ -8,17 +7,14 @@ from google.cloud import bigquery
 from google.cloud import storage
 from itertools import islice
 from dateutil.relativedelta import relativedelta
-from tempfile import NamedTemporaryFile
 
+query_range = 5
 now = datetime.datetime.now()
-now_delta = now - relativedelta(days=5)
+delta = now - relativedelta(days=query_range)
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
-partition_date_end = now.date()
-partition_date_start = now_delta.date()
-partition_range = f"{year}{month}{now_delta.strftime('%d')}-{day}"
 
 # Required vars to update
 USER = os.getenv('username')          # Cost management username
@@ -81,8 +77,8 @@ def build_query_select_statement():
     columns_list.append("DATE(_PARTITIONTIME) as partition_date")
     return ",".join(columns_list)
     
-def create_reports():
-    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) BETWEEN '{partition_date_start}' AND {partition_date_end} AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR  service.description LIKE '%Red Hat%'"
+def create_reports(query_date):
+    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) = {query_date} AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR  service.description LIKE '%Red Hat%' ORDER BY usage_start_time"
     client = bigquery.Client()
     query_job = client.query(query).result()
     column_list = gcp_big_query_columns.copy()
@@ -91,7 +87,7 @@ def create_reports():
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET)
     for i, rows in enumerate(batch(query_job, BATCH_SIZE)):
-        csv_file = f"{report_prefix}/{partition_range}_{str(i)}.csv"
+        csv_file = f"{report_prefix}/{query_date}_part_{str(i)}.csv"
         files_list.append(csv_file)
         blob = bucket.blob(csv_file)
         with blob.open(mode='w') as f:
@@ -108,6 +104,9 @@ def post_data(files_list):
     return resp
 
 def get_filtered_data(request):
-    files_list = create_reports()
+    files_list = []
+    query_dates = [delta + datetime.timedelta(days=x) for x in range(query_range)]
+    for query_date in query_dates:
+        files_list += create_reports(query_date.date())
     resp = post_data(files_list)
     return f'Files posted! {resp}'
