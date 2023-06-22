@@ -51,6 +51,7 @@ def main(mytimer: func.TimerRequest) -> None:
     df = pd.read_csv(blobjct)
 
     filtered_data = df.loc[(df["publisherType"] == "Azure" & (df["meterSubCategory"].astype(str).str.contains("Red Hat") | df["serviceInfo2"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat") | df["serviceInfo2"].astype(str).str.contains("Red Hat")))))]
+    
     filtered_data_csv = filtered_data.to_csv (index_label="idx", encoding = "utf-8")
 
     blob_client = blob_service_client.get_blob_client(container=filtered_data_container, blob=output_blob_name)
