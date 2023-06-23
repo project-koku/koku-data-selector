@@ -1,8 +1,11 @@
 import datetime
+import calendar
 import logging
+import os
 import uuid
 import requests
 import pandas as pd
+from datetime import timedelta
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, ContainerClient
 
@@ -16,6 +19,9 @@ def main(mytimer: func.TimerRequest) -> None:
     default_credential = DefaultAzureCredential()
 
     now = datetime.datetime.now()
+    _, num_days = calendar.monthrange(now.year, now.month)
+    month_end = now.replace(day=num_days)
+    month_start = now.replace(day=1)
     year = now.strftime("%Y")
     month = now.strftime("%m")
     day = now.strftime("%d")
@@ -23,7 +29,8 @@ def main(mytimer: func.TimerRequest) -> None:
     # Finalized data
     # Appends finalized data to the last day of the previous month
 
-    # last_month = now.replace(day=1) - timedelta(days=1)
+    # month_end = now.replace(day=1) - timedelta(days=1)
+    # month_start = last_month_end.replace(day=1)
     # month = last_month.strftime("%m")
     # day = last_month.strftime("%d")
 
@@ -35,14 +42,18 @@ def main(mytimer: func.TimerRequest) -> None:
     source_id = "CHANGE-ME"                                                 # Cost management source_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
+    cost_export_dir = "eport-dir/export-name"                               # Cost export dir + Cost export name
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
+    timeformat = "%Y%m%d"
+    report_range = f"{month_start.strftime(timeformat)}-{month_end.strftime(timeformat)}"
+    report_path = f"{cost_export_dir}/{report_range}"
 
     # Create the BlobServiceClient object
     blob_service_client = BlobServiceClient(filtered_data_store, credential=default_credential)
     container_client = ContainerClient(cost_export_store, credential=default_credential, container_name=cost_export_container)
 
-    blob_list = container_client.list_blobs()
+    blob_list = container_client.list_blobs(name_starts_with=report_path)
     latest_blob = None
     for blob in blob_list:
         if latest_blob:

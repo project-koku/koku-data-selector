@@ -23,7 +23,7 @@ Azure resource group and storage account
 
 4. Create billing export
     a. See section 1.3 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2023/html/adding_a_microsoft_azure_source_to_cost_management/assembly-adding-azure-sources#configuring-an-azure-daily-export-schedule_adding-an-azure-source>`_ during creation select a storage account or create a new one.
-    b. Make a note of the storage account in use for the cost export **Required** for function
+    b. Make a note of the storage account, container name, export dir and export name **Required** for function
 
 
 5. Setup function to post reports
@@ -49,15 +49,44 @@ Azure resource group and storage account
             Storage Queue Data Contributor
 
     d. Optionally store credentials in vault: `Key vault Credentials`_
-        i. Navigate to your function
-        ii. Select Configuration under settings in the blade
-        iii. Click New application setting
-        iv. Name: *UsernameFromVault*
-        v. Value: *@Microsoft.KeyVault(SecretUri=YOUR-USER-SECRET-URI)*
-        vi. Save
-        vii. Add Another application setting for: *PasswordFromVault*
-        viii. Value: *@Microsoft.KeyVault(SecretUri=YOUR-PASSWORD-SECRET-URI)*
-        ix. Make sure to Replace the URI's with your Secret URI's 
+        i. See `Adding Vault Creds To functions`_
+
+Collecting Finalized Data
+=========================
+
+1. Setup function to send finalized billing reports
+    a. Create Azure Time Trigger function using `VSCode <https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-configuration>`_
+        i. Set the Time trigger function to run once a month after the 3rd of the month (after Azure finialises billing data)
+        ii. Uncomment the following lines 
+
+        ..code-block::
+
+            # month_end = now.replace(day=1) - timedelta(days=1)
+            # month_start = last_month_end.replace(day=1)
+            # month = last_month.strftime("%m")
+            # day = last_month.strftime("%d")
+
+
+    b. Now you have a basic function created we need to add a few things
+        i. Create a **requirements.txt** and add `these <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/requirements.txt>`_
+        ii. Add `Function Code and Queries`_,
+        iii. **NOTE** Be sure to update the required vars
+        iv. Deploy the function to Azure
+
+    c. Setup blob access for function in Azure portal refer to `this <https://learn.microsoft.com/en-us/samples/azure-samples/functions-storage-managed-identity/using-managed-identity-between-azure-functions-and-azure-storage/>`_
+        i. Navigate to Function App
+        ii. Select identity in the blade
+        iii. Turn on System assigned identity
+        iv. Go to Azure role assignements
+        v. Add the following roles for both storage accounts created previously  
+
+        .. code-block::
+
+            Storage Blob Data Contributor
+            Storage Queue Data Contributor
+
+    d. Optionally store credentials in vault: `Key vault Credentials`_
+        i. See `Adding Vault Creds To functions`_
 
 Key vault Credentials
 =====================
@@ -79,6 +108,17 @@ Key vault Credentials
 10. Click on each secret - select the version
 11. Copy the secret Identifier URI
 
+Adding Vault Creds To functions
+===============================
+1. Navigate to your function
+2. Select Configuration under settings in the blade
+3. Click New application setting
+4. Name: *UsernameFromVault*
+5. Value: *@Microsoft.KeyVault(SecretUri=YOUR-USER-SECRET-URI)*
+6. Save
+7. Add Another application setting for: *PasswordFromVault*
+8. Value: *@Microsoft.KeyVault(SecretUri=YOUR-PASSWORD-SECRET-URI)*
+9. Make sure to Replace the URI's with your Secret URI's 
 
 Function Code and Queries
 =========================

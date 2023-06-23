@@ -84,40 +84,9 @@ Create bucket for reports
         iv. Hit Deploy then Test and see execution results
 
 8. Create two AmazonEventBridge schedules to trigger the above functions
-    a. Create EventBridge schedule for Athena query function
-        i. Add a Name/Description
-        ii. Select group default
-        iii. Occurrence: Recurring schedule
-        iv. Type: Cron-based
-        v. Set cron schedule **(0 9 * * ? *)** This will be 9AM Every day
-        vi. Set flexible time window
-        vii. NEXT
-        viii. Target detail: AWS Lambda invoke
-        ix. Select lambda function previously created
-        x. NEXT
-        xi. Enable the schedule
-        xii. Configure retry logic
-        xiii. Encryption (Ignore)
-        xiv. Permissions: Create new role on the fly
-        xv. NEXT
-        xvi. Review and create
-    b. Create EventBridge schedule for Cost Mgmt Post function
-        i. Add a Name/Description
-        ii. Select group default
-        iii. Occurrence: Recurring schedule
-        iv. Type: Cron-based
-        v. Set cron schedule **(0 21 * * ? *)** This will be 9PM Every day
-        vi. Set flexible time window
-        vii. NEXT
-        viii. Target detail: AWS Lambda invoke
-        ix. Select lambda function previously created
-        x. NEXT
-        xi. Enable the schedule
-        xii. Configure retry logic
-        xiii. Encryption (Ignore)
-        xiv. Permissions: Create new role on the fly
-        xv. NEXT
-        xvi. Review and create
+    a. See `Creating Amazon Eventbridges`_ be sure to update the {CRON_SCHEDULE}
+        i. NOTE: The cadence for these should be run once a day.
+        ii. Example crons: (0 9 * * ? *) and (0 21 * * ? *)
 
 **GOTCHAS:**
 
@@ -137,7 +106,7 @@ Collect Finalized Data
         vi. Hit create
     b. Write some code for collecting the finalized data
         i. Select code tab in the lambda function
-        ii. Add `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ , make sure to update the SOURCE_UUID, BUCKET and DATABASE Vars
+        ii. Add `athena_query_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_ , make sure to update the SOURCE_UUID, BUCKET and DATABASE Vars
         iii. Note: If you customized your Athena queries from the non stardard ones provided, you will need to do the same here.
         iv. Uncomment the following code:
 
@@ -159,7 +128,7 @@ Collect Finalized Data
         vi. Hit create
     b. Write some code!
         i. Select code tab in the lambda function
-        ii. Drop the following `post_code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
+        ii. Drop the following `code <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/post-function.txt>`_ updating the BUCKET, USER, PASS Vars
         iii. Using AWS Secrets Manager for credentials: `Secrets manager credentials`_ Uncomment the following lines and update SECRET_NAME:
 
         .. code-block::
@@ -176,6 +145,10 @@ Collect Finalized Data
             # file_name = 'finalized_data.json'
 
         iv. Hit Deploy then Test and see execution results
+3. Create EventBridge schedule for Cost Mgmt Post function
+    a. `Creating Amazon Eventbridges`_ be sure to update the {CRON_SCHEDULE}
+        i. NOTE: The cadence for these should be run once a month on or after the 15th of the month since AWS should have finilized your bill by this date.
+        ii. Example crons: (0 9 15 * ? *) and (0 21 15 * ? *)
 
 
 
@@ -269,3 +242,24 @@ Function Code and Athena Queries
         3. **product_location**, **product_region** Used to filter data in a specifc region.
         4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specifc instance.
     * Once your custom query is built just replace line 18 with your revised version.
+
+
+Creating Amazon Eventbridges
+============================
+a. Create EventBridge schedule for Athena query function
+    i. Add a Name/Description
+    ii. Select group default
+    iii. Occurrence: Recurring schedule
+    iv. Type: Cron-based
+    v. Set cron schedule **{CRON_SCHEDULE}** This will be 9AM Every day
+    vi. Set flexible time window
+    vii. NEXT
+    viii. Target detail: AWS Lambda invoke
+    ix. Select lambda function previously created
+    x. NEXT
+    xi. Enable the schedule
+    xii. Configure retry logic
+    xiii. Encryption (Ignore)
+    xiv. Permissions: Create new role on the fly
+    xv. NEXT
+    xvi. Review and create
