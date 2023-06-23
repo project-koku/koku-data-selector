@@ -30,9 +30,9 @@ def main(mytimer: func.TimerRequest) -> None:
     # Appends finalized data to the last day of the previous month
 
     # month_end = now.replace(day=1) - timedelta(days=1)
-    # month_start = last_month_end.replace(day=1)
-    # month = last_month.strftime("%m")
-    # day = last_month.strftime("%d")
+    # month_start = month_end.replace(day=1)
+    # month = month_start.strftime("%m")
+    # day = month_start.strftime("%d")
 
     output_blob_name=f"{year}/{month}/{day}/{uuid.uuid4()}.csv"
 
@@ -42,7 +42,7 @@ def main(mytimer: func.TimerRequest) -> None:
     source_id = "CHANGE-ME"                                                 # Cost management source_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
-    cost_export_dir = "eport-dir/export-name"                               # Cost export dir + Cost export name
+    cost_export_dir = "export-dir/export-name"                               # Cost export dir + Cost export name
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
     timeformat = "%Y%m%d"
