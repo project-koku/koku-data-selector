@@ -113,6 +113,7 @@ Collect Finalized Data
         .. code-block::
 
             # last_month = now.replace(day=1) - timedelta(days=1)
+            # year = last_month.strftime("%Y")
             # month = last_month.strftime("%m")
             # day = last_month.strftime("%d")
             # file_name = 'finalized-data.json'

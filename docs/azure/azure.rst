@@ -62,9 +62,10 @@ Collecting Finalized Data
         ..code-block::
 
             # month_end = now.replace(day=1) - timedelta(days=1)
-            # month_start = last_month_end.replace(day=1)
-            # month = last_month.strftime("%m")
-            # day = last_month.strftime("%d")
+            # month_start = month_end.replace(day=1)
+            # year = month_start.strftime("%Y")
+            # month = month_start.strftime("%m")
+            # day = month_start.strftime("%d")
 
 
     b. Now you have a basic function created we need to add a few things

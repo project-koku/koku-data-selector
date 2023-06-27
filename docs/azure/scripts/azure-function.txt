@@ -31,6 +31,7 @@ def main(mytimer: func.TimerRequest) -> None:
 
     # month_end = now.replace(day=1) - timedelta(days=1)
     # month_start = month_end.replace(day=1)
+    # year = month_start.strftime("%Y")
     # month = month_start.strftime("%m")
     # day = month_start.strftime("%d")
 

@@ -3,9 +3,6 @@
 GCP: Customer-filtered data
 ===========================
 
-GCP bucket store
-================
-
 1. Create new bucket for filtered reports 
     a. Follow this `instructions <https://cloud.google.com/storage/docs/creating-buckets>`_
 
@@ -96,3 +93,50 @@ Function Code and Queries
         2. **project.id**, **project.number** or **project.name** Used to filter specific projects based on ID, Number or Name.
         3. **location.region** Used to filter data in a specifc region.
     * You can preview your data in bigquery to help build your desired function query. Once built just replace line 85 with your revised query.
+
+Final bills
+===========
+* At the end of the month or rather start of the following month GCP will finish billing for the previous month. At this point we need a mechanism to send these last reports for processing.
+* In order to make sure Cost Management has previous month billing accurate we need to create an additional function + scheduled job to trigger it.
+
+1. Setup function to post reports
+    a. From Cloud Functions select create function
+    b. Name your function
+    c. Select HTTP trigger
+    d. Optional `Secrets manager credentials`_
+        i. Within runtime, build, connections, security settings - Go to security
+        ii. Click reference secret
+        iii. Select your secret
+        iv. Set 'Exposed as environment variable'
+        v. Select secret version or latest
+        vi. Click done
+        vii. Repeat for additional secrets
+    e. Hit save and copy your Trigger URL then Next
+    f. Select python 3.9 runtime
+    g. Set Entry Point to **get_filtered_data**
+    h. Add `Function Code and Queries`_, make sure to update all vars with CHANGE-ME values
+    i. Additionally uncomment the following lines
+
+        .. code-block::
+
+        # month_end = now.replace(day=1) - timedelta(days=1)
+        # delta = now.replace(day=1) - timedelta(days=query_range)
+        # year = month_end.strftime("%Y")
+        # month = month_end.strftime("%m")
+        # day = month_end.strftime("%d")
+
+    j. Select the requirements.py file and add `requirements <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
+    k. Finally hit Deploy
+
+2. Setup cloud scheduler to trigger your function
+    a. Navigate to Cloud scheduler
+    b. Click schedule a job
+    c. Name your schedule
+    d. Set frequency to something like: 0 9 4 * * (run on the 4th of every month)
+    e. Set timezone and click continue
+    f. Paste in your function Trigger URL from above
+    g. Add **{"name": "Scheduler"}** to the request body
+    h. Set auth header to OIDC token
+    i. Select or create a service account with the **Cloud Scheduler Job Runner** AND **Cloud Functions Invoker** roles
+    j. Continue and add any retry logic you wish
+    k. Hit save
