@@ -14,6 +14,15 @@ delta = now - relativedelta(days=query_range)
 year = now.strftime("%Y")
 month = now.strftime("%m")
 day = now.strftime("%d")
+
+# Finalized data
+# Appends finalized data to the last day of the previous month
+# month_end = now.replace(day=1) - timedelta(days=1)
+# delta = now.replace(day=1) - timedelta(days=query_range)
+# year = month_end.strftime("%Y")
+# month = month_end.strftime("%m")
+# day = month_end.strftime("%d")
+
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
 
 # Required vars to update
