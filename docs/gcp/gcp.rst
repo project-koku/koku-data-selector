@@ -125,7 +125,7 @@ Final bills
         # month = month_end.strftime("%m")
         # day = month_end.strftime("%d")
 
-    j. Select the requirements.py file and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
+    j. Select the requirements.py file and add `requirements <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
     k. Finally hit Deploy
 
 2. Setup cloud scheduler to trigger your function
