@@ -88,7 +88,7 @@ def build_query_select_statement():
     return ",".join(columns_list)
     
 def create_reports(query_date):
-    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) = {query_date} AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR  service.description LIKE '%Red Hat%' ORDER BY usage_start_time"
+    query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) = {query_date} AND sku.description LIKE '%RedHat%' OR sku.description LIKE '%Red Hat%' OR sku.description LIKE '%RHEL%' OR  service.description LIKE '%Red Hat%' ORDER BY usage_start_time"
     client = bigquery.Client()
     query_job = client.query(query).result()
     column_list = gcp_big_query_columns.copy()
