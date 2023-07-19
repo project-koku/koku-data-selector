@@ -70,7 +70,7 @@ def main(mytimer: func.TimerRequest) -> None:
         data.readinto(f)
     df = pd.read_csv(blobjct)
 
-    filtered_data = df.loc[((df["publisherType"] == "Azure") & (df["meterSubCategory"].astype(str).str.contains("Red Hat") | df["serviceInfo2"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat") | df["serviceInfo2"].astype(str).str.contains("Red Hat")))))]
+    filtered_data = df.loc[((df["publisherType"] == "Azure") & (df["meterSubCategory"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat")))))]
 
     filtered_data_csv = filtered_data.to_csv (index_label="idx", encoding = "utf-8")
 
