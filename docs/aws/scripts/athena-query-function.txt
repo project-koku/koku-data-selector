@@ -25,7 +25,7 @@ database = 'CHAGNEME'                                       # Database to execut
 output=f's3://{bucket}/{year}/{month}/{day}/{uuid.uuid4()}' # Output location for query results
 
 # Athena query
-query = f"SELECT * FROM {database}.koku_athena WHERE ((bill_billing_entity = 'AWS Marketplace' AND line_item_legal_entity like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%RHEL%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%RHEL%')) AND year = '{year}' AND month = '{month}'"
+query = f"SELECT * FROM {database}.koku_athena WHERE ((bill_billing_entity = 'AWS Marketplace' AND line_item_legal_entity like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND line_item_line_item_description like '%RHEL%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%Red Hat%') OR (line_item_legal_entity like '%AWS%' AND line_item_line_item_description like '%RHEL%') OR (line_item_legal_entity like '%AWS%' AND product_product_name like '%Red Hat%') OR (line_item_legal_entity like '%Amazon Web Services%' AND product_product_name like '%Red Hat%')) AND year = '{year}' AND month = '{month}'"
 
 def lambda_handler(event, context):
     # Initiate Boto3 athena Client
