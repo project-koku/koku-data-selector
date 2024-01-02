@@ -40,7 +40,7 @@ def main(mytimer: func.TimerRequest) -> None:
     # Required vars to update
     USER = os.getenv('UsernameFromVault')                                   # Cost management username
     PASS = os.getenv('PasswordFromVault')                                   # Cost management password
-    source_id = "CHANGE-ME"                                                 # Cost management source_id
+    integration_id = "CHANGE-ME"                                                 # Cost management integration_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
     cost_export_dir = "export-dir/export-name"                               # Cost export dir + Cost export name
@@ -80,7 +80,7 @@ def main(mytimer: func.TimerRequest) -> None:
 
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": source_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
+    json_data = {"source": integration_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, auth=(USER, PASS))
     logging.info(f'Post result: {resp}')
 
