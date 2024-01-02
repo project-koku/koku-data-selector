@@ -198,6 +198,14 @@ Configure Athena
             line_item_legal_entity like '%AWS%'
             AND line_item_line_item_description like '%RHEL%'
         )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND product_product_name like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND product_product_name like '%Red Hat%'
+        )
         AND year = '2022'
         AND month = '10'
 
