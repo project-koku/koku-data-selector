@@ -80,12 +80,12 @@ def build_query_select_statement():
     """Helper to build query select statement."""
     columns_list = gcp_big_query_columns.copy()
     columns_list = [
-        f"TO_JSON_STRING({col})" if col in ("labels", "system_labels", "project.labels") else col
+        f"TO_JSON_STRING({col})" if col in ("labels", "system_labels", "project.labels", "credits") else col
         for col in columns_list
     ]
     columns_list.append("DATE(usage_start_time) as partition_date")
     return ",".join(columns_list)
-    
+
 def create_reports(query_date):
     query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) = '{query_date}' ORDER BY usage_start_time"
     client = bigquery.Client()
