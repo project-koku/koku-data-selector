@@ -1,6 +1,7 @@
 import boto3
 import json
-import requests
+import urllib3
+from base64 import b64encode
 from botocore.exceptions import ClientError
 
 
@@ -56,7 +57,19 @@ def lambda_handler(event, context):
 
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": json_content["source_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
-    resp = requests.post(url, json=json_data, auth=(USER, PASS))
+    json_data = {"source": json_content["integration_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
 
-    return resp
+    http = urllib3.PoolManager()
+    # Create headers with the authorization
+    auth = b64encode(f'{USER}:{PASS}'.encode('utf-8')).decode('utf-8')
+    headers = {
+        'Authorization': f'Basic {auth}',
+        'Content-Type': 'application/json'
+    }
+    # Convert data to JSON
+    encoded_data = json.dumps(json_data).encode('utf-8')
+
+    # Make a POST request with the headers and data
+    resp = http.request('post', url, headers=headers, body=encoded_data)
+
+    return resp.data
