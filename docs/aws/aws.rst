@@ -86,7 +86,7 @@ Create bucket for reports
 8. Create two AmazonEventBridge schedules to trigger the above functions
     a. See `Creating Amazon Eventbridges`_ be sure to update the {CRON_SCHEDULE}
         i. NOTE: The cadence for these should be run once a day.
-        ii. Example crons: (0 9 * * ? *) and (0 21 * * ? *)
+        ii. Example crons: `(0 9 * * ? *)` and `(0 21 * * ? *)`
 
 **GOTCHAS:**
 
@@ -149,22 +149,23 @@ Collect Finalized Data
 3. Create EventBridge schedule for Cost Mgmt Post function
     a. `Creating Amazon Eventbridges`_ be sure to update the {CRON_SCHEDULE}
         i. NOTE: The cadence for these should be run once a month on or after the 15th of the month since AWS should have finilized your bill by this date.
-        ii. Example crons: (0 9 15 * ? *) and (0 21 15 * ? *)
+        ii. Example crons: `(0 9 15 * ? *)` and `(0 21 15 * ? *)`
 
 
 
 Cost and Usage creation
 =======================
 
-1. From the AWS billing console select Cost & usage reports
-2. Create report
-3. Name your report
-4. Select Include resource IDs followed by Next
-5. Configure S3 bucket to store usage data
-6. Set report prefix
-7. Time Granularity: Hourly
-8. Enable report data integration for: Amazon Athena
-9. Next to review configuration and Create
+1. From the AWS billing console select Data Exports
+2. Create Export
+3. Select Legacy CUR export
+4. Name your export (Save this name for lambda functions)
+5. Select Include resource IDs followed by Next
+6. Configure S3 bucket to store usage data
+7. Set exprt prefix
+8. Time Granularity: Hourly
+9. Enable export data integration for: Amazon Athena
+10. Next to review configuration and Create
 
 
 Configure Athena
@@ -221,7 +222,7 @@ Secrets Manager Credentials
     i. username
     ii. password
 4. Populate the values with the appropriate username/password
-5. Name your secret
+5. Continue to name your secret
 6. Continue through and store your secret
 7. Update the Role created for your Lambda functions and Include
 
@@ -242,7 +243,7 @@ Function Code and Athena Queries
 ================================
 * For standard Hybrid Commited Spend queries use the default `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_
 * For custom queries non HCS we need to edit line 18 in the above function code.
-    * Initial query to grab all data: **query = f"SELECT * FROM {database}.koku_athena WHERE year = '{year}' AND month = '{month}'"**
+    * Initial query to grab all data: **query = f"SELECT * FROM {database}.{export_name} WHERE year = '{year}' AND month = '{month}'"**
     * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
     * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
     * Examples:
@@ -260,7 +261,7 @@ a. Create EventBridge schedule for Athena query function
     ii. Select group default
     iii. Occurrence: Recurring schedule
     iv. Type: Cron-based
-    v. Set cron schedule **{CRON_SCHEDULE}** This will be 9AM Every day
+    v. Set cron schedule `(example: 0 9 * * ? *)`
     vi. Set flexible time window
     vii. NEXT
     viii. Target detail: AWS Lambda invoke

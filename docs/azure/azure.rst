@@ -92,10 +92,12 @@ Collecting Finalized Data
 Key vault Credentials
 =====================
 
-1. From Azure key vaults - Create secret
-2. Select the same resource group your function resides in
-3. Set Key Vault Name
-4. Within Access policy - Create new access policy
+1. Go to *Key Vaults* in Azure
+2. Click Create, to create new secret
+3. Select the same resource group your function resides in
+4. Add Key Vault Name - Next
+5. Under *Permissions model* - Choose Vault access policy
+6. Within *Access policies* - Create new policy
     i. Select Secret Management from templates
     ii. For principal find your Created function
     iii. Review and create policy
@@ -112,8 +114,8 @@ Key vault Credentials
 Adding Vault Creds To functions
 ===============================
 1. Navigate to your function
-2. Select Configuration under settings in the blade
-3. Click New application setting
+2. Select Environment variables under settings in the blade
+3. Click add to create variable
 4. Name: *UsernameFromVault*
 5. Value: *@Microsoft.KeyVault(SecretUri=YOUR-USER-SECRET-URI)*
 6. Save
