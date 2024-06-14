@@ -222,7 +222,7 @@ Secrets Manager Credentials
     i. username
     ii. password
 4. Populate the values with the appropriate username/password
-5. Continue and name your secret
+5. Continue to name your secret
 6. Continue through and store your secret
 7. Update the Role created for your Lambda functions and Include
 

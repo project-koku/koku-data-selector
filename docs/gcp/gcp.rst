@@ -4,7 +4,7 @@ GCP: Customer-filtered data
 ===========================
 
 1. Create new bucket for filtered reports 
-    a. Follow this `instructions <https://cloud.google.com/storage/docs/creating-buckets>`_
+    a. Follow these `instructions <https://cloud.google.com/storage/docs/creating-buckets>`_
 
 2. Grant access to bucket data
     a. From IAM & Admin - Roles
@@ -30,7 +30,11 @@ GCP: Customer-filtered data
     e. Find your source and note down its source_uuid, **required** for GCP function
 
 4. Create billing export
-    a. see sections 1.4 and 1.5 `here <https://access.redhat.com/documentation/en-us/cost_management_service/2023/html/adding_a_google_cloud_source_to_cost_management/assembly-adding-gcp-sources#creating-a-dataset-gcp_adding-gcp-sources>`_
+    a. In Google Cloud Console, go to BigQuery
+    b. In the Explorer panel click on the 3 dot action icon next to your project name and click create dataset
+    c. Name your dataset
+    d. Click create
+
 
 5. Setup function to post reports
     a. From Cloud Functions select create function
@@ -45,7 +49,7 @@ GCP: Customer-filtered data
         vi. Click done
         vii. Repeat for additional secrets
     e. Hit save and copy your Trigger URL then Next
-    f. Select python 3.9 runtime
+    f. Select latest supported python runtime
     g. Set Entry Point to **get_filtered_data**
     h. Add `Function Code and Queries`_, make sure to update all vars with CHANGE-ME values
     i. Select the requirements.py file and add `this <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/requirements.txt>`_
