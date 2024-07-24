@@ -38,12 +38,12 @@ def main(mytimer: func.TimerRequest) -> None:
     output_blob_name=f"{year}/{month}/{day}/{uuid.uuid4()}.csv"
 
     # Required vars to update
-    USER = os.getenv('UsernameFromVault')                                   # Cost management username
-    PASS = os.getenv('PasswordFromVault')                                   # Cost management password
+    client_id = os.getenv('ClientIdFromVault')                              # C.R.C service account client id
+    client_secret = os.getenv('ClientSecretFromVault')                      # C.R.C service account client secret
     source_id = "CHANGE-ME"                                                 # Cost management source_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
-    cost_export_dir = "export-dir/export-name"                               # Cost export dir + Cost export name
+    cost_export_dir = "export-dir/export-name"                              # Cost export dir + Cost export name
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
     timeformat = "%Y%m%d"
@@ -78,10 +78,26 @@ def main(mytimer: func.TimerRequest) -> None:
 
     blob_client.upload_blob(filtered_data_csv, overwrite=True)
 
+    # Get service account token
+    token_url = 'https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token'
+    token_headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    token_data = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials"
+    }
+    token_response = requests.post(token_url, headers=token_headers, data=token_data)
+
     # Post results to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
+    headers = {
+        'Authorization': f'Bearer {token_response.json().get("access_token")}',
+        'Accept': 'application/json'
+    }
     json_data = {"source": source_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
-    resp = requests.post(url, json=json_data, auth=(USER, PASS))
+    resp = requests.post(url, json=json_data, headers=headers)
     logging.info(f'Post result: {resp}')
 
     if mytimer.past_due:

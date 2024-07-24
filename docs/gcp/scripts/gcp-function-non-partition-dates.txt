@@ -26,13 +26,13 @@ day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
 
 # Required vars to update
-USER = os.getenv('username')          # Cost management username
-PASS = os.getenv('password')          # Cost management password
-SOURCE_ID = "CHANGE-ME"               # Cost management source_id
-BUCKET = "CHANGE-ME"                  # Filtered data GCP Bucket
-PROJECT_ID = "CHANGE-ME"              # Your project ID
-DATASET = "CHANGE-ME"                 # Your dataset name
-TABLE_ID = "CHANGE-ME"                # Your table ID
+CLIENT_ID = os.getenv('client_id')          # C.R.C service account client_id`
+CLIENT_SECRET = os.getenv('client_secret')  # C.R.C service account client secret
+SOURCE_ID = "CHANGE-ME"                     # Cost management source_id
+BUCKET = "CHANGE-ME"                        # Filtered data GCP Bucket
+PROJECT_ID = "CHANGE-ME"                    # Your project ID
+DATASET = "CHANGE-ME"                       # Your dataset name
+TABLE_ID = "CHANGE-ME"                      # Your table ID
 
 gcp_big_query_columns = [
     "billing_account_id",
@@ -86,6 +86,19 @@ def build_query_select_statement():
     columns_list.append("DATE(usage_start_time) as partition_date")
     return ",".join(columns_list)
 
+def get_service_account_token():
+    """Get correct authentication token for your C.R.C service account"""
+    token_url = 'https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token'
+    token_headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    token_data = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "client_credentials"
+    }
+    return requests.post(token_url, headers=token_headers, data=token_data)
+
 def create_reports(query_date):
     query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(usage_start_time) = '{query_date}' ORDER BY usage_start_time"
     client = bigquery.Client()
@@ -109,7 +122,12 @@ def post_data(files_list):
     # Post CSV's to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
     json_data = {"source": SOURCE_ID, "reports_list": files_list, "bill_year": year, "bill_month": month}
-    resp = requests.post(url, json=json_data, auth=(USER, PASS))
+    token_response = get_service_account_token()
+    headers = {
+        'Authorization': f'Bearer {token_response.json().get("access_token")}',
+        'Accept': 'application/json'
+    }
+    resp = requests.post(url, json=json_data, headers=headers)
     return resp
 
 def get_filtered_data(request):

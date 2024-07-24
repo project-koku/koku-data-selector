@@ -80,7 +80,7 @@ Secrets Manager Credentials
 ===========================
 
 1. From GCP Secrets Manager 
-2. Create two new secrets one for username/password
+2. Create two new secrets one for each client_id/client_secret
 3. Name your secret
 4. Add secret value
 5. Hit create
@@ -116,7 +116,7 @@ Final bills
         vi. Click done
         vii. Repeat for additional secrets
     e. Hit save and copy your Trigger URL then Next
-    f. Select python 3.9 runtime
+    f. Select latest supported python runtime
     g. Set Entry Point to **get_filtered_data**
     h. Add `Function Code and Queries`_, make sure to update all vars with CHANGE-ME values
     i. Additionally uncomment the following lines
