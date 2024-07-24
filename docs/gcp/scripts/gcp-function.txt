@@ -27,7 +27,7 @@ day = now.strftime("%d")
 report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
 
 # Required vars to update
-CLIENT_ID = os.getenv('client_id')          # C.R.C service account client_id`
+CLIENT_ID = os.getenv('client_id')          # C.R.C service account client_id
 CLIENT_SECRET = os.getenv('client_secret')  # C.R.C service account client secret
 SOURCE_ID = "CHANGE-ME"                     # Cost management source_id
 BUCKET = "CHANGE-ME"                        # Filtered data GCP Bucket
