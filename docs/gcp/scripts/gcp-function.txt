@@ -29,7 +29,7 @@ report_prefix=f"{year}/{month}/{day}/{uuid.uuid4()}"
 # Required vars to update
 USER = os.getenv('username')          # Cost management username
 PASS = os.getenv('password')          # Cost management password
-SOURCE_ID = "CHANGE-ME"               # Cost management source_id
+INTEGRATION_ID = "CHANGE-ME"          # Cost management integration_id
 BUCKET = "CHANGE-ME"                  # Filtered data GCP Bucket
 PROJECT_ID = "CHANGE-ME"              # Your project ID
 DATASET = "CHANGE-ME"                 # Your dataset name
@@ -109,7 +109,7 @@ def create_reports(query_date):
 def post_data(files_list):
     # Post CSV's to console.redhat.com API
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": SOURCE_ID, "reports_list": files_list, "bill_year": year, "bill_month": month}
+    json_data = {"source": INTEGRATION_ID, "reports_list": files_list, "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, auth=(USER, PASS))
     return resp
 
