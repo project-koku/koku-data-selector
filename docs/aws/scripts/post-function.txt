@@ -25,9 +25,9 @@ region_name = "us-east-1"
 secret = get_credentials(secret_name, region_name)
 json_creds = json.loads(secret)
 
-USER = json_creds.get("username")      # Cost Management Username
-PASS = json_creds.get("password")      # Cost Management Password
-bucket = "CHANGEME"                    # Bucket for athena query results
+CLIENT_ID = json_creds.get("client_id")         # C.R.C service account client_id
+CLIENT_SECRET = json_creds.get("client_secret") # C.R.C service account client_secret
+bucket = "CHANGEME"                             # Bucket for athena query results
 
 file_name = 'query_data.json'
 # file_name = 'finalized_data.json'
@@ -55,21 +55,28 @@ def lambda_handler(event, context):
         if item.get("Key").endswith(".csv"):
             reports_list.append(item.get("Key"))
 
-    # Post results to console.redhat.com API
-    url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
-    json_data = {"source": json_content["integration_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
-
-    http = urllib3.PoolManager()
-    # Create headers with the authorization
-    auth = b64encode(f'{USER}:{PASS}'.encode('utf-8')).decode('utf-8')
-    headers = {
-        'Authorization': f'Basic {auth}',
-        'Content-Type': 'application/json'
+    # Get service account token
+    token_url = 'https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token'
+    token_headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
     }
-    # Convert data to JSON
+    token_data = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials"
+    }
+    token_response = requests.post(token_url, headers=token_headers, data=token_data)
+
+    # Post results to console.redhat.com API
+    json_data = {"source": json_content["integration_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
     encoded_data = json.dumps(json_data).encode('utf-8')
 
-    # Make a POST request with the headers and data
+    http = urllib3.PoolManager()
+    headers = {
+        'Authorization': f'Bearer {token_response.json().get("access_token")}',
+        'Accept': 'application/json'
+    }
+    url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
     resp = http.request('post', url, headers=headers, body=encoded_data)
 
     return resp.data

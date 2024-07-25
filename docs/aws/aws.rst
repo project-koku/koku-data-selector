@@ -2,6 +2,10 @@
 ===========================
 AWS: Customer-filtered data
 ===========================
+*Prerequisites:*
+    - A console.redhat.com service account is required
+    - The service account must have the correct roles assigned in C.R.C for Cost management access
+
 For the most part follow `How to schedule athena queries <https://aws.amazon.com/premiumsupport/knowledge-center/schedule-query-athena/>`_
 
 
@@ -219,9 +223,9 @@ Secrets Manager Credentials
 1. From AWS Secrets Manager - Store a new secret
 2. Secret type: Other type of secret
 3. Create the following Keys:
-    i. username
-    ii. password
-4. Populate the values with the appropriate username/password
+    i. client_id
+    ii. client_secret
+4. Populate the values with the appropriate values from your service account
 5. Continue to name your secret
 6. Continue through and store your secret
 7. Update the Role created for your Lambda functions and Include

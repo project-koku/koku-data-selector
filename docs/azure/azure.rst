@@ -6,6 +6,9 @@ Azure: Customer-filtered data
 
 Azure resource group and storage account
 ========================================
+*Prerequisites:*
+    - A console.redhat.com service account is required
+    - The service account must have the correct roles assigned in C.R.C for Cost management access
 
 1. Create new resource group and storage account for filtered reports using these `instructions <https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_
 
@@ -105,8 +108,8 @@ Key vault Credentials
 7. Review and create Vault
 8. Click on new vault and select secrets in the blade
 9. Generate/import two new secrets
-    i. Secret names as follows *UsernameFromVault* and *PasswordFromVault*
-    ii. Giving them a secret value matching your console.redhat.com username and password respectively
+    i. Secret names as follows *ClientIdFromVault* and *ClientSecretFromVault*
+    ii. Giving them a secret value matching your console.redhat.com service account client_id and client_secret respectively
 
 10. Click on each secret - select the version
 11. Copy the secret Identifier URI
@@ -116,11 +119,11 @@ Adding Vault Creds To functions
 1. Navigate to your function
 2. Select Environment variables under settings in the blade
 3. Click add to create variable
-4. Name: *UsernameFromVault*
-5. Value: *@Microsoft.KeyVault(SecretUri=YOUR-USER-SECRET-URI)*
+4. Name: *ClientIdFromVault*
+5. Value: *@Microsoft.KeyVault(SecretUri=YOUR-CLIENT-ID-URI)*
 6. Save
-7. Add Another application setting for: *PasswordFromVault*
-8. Value: *@Microsoft.KeyVault(SecretUri=YOUR-PASSWORD-SECRET-URI)*
+7. Add Another application setting for: *ClientSecretFromVault*
+8. Value: *@Microsoft.KeyVault(SecretUri=YOUR-CLIENT-SECRET-URI)*
 9. Make sure to Replace the URI's with your Secret URI's 
 
 Function Code and Queries
