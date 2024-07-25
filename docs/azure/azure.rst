@@ -7,7 +7,7 @@ Azure: Customer-filtered data
 Azure resource group and storage account
 ========================================
 *Prerequisites:*
-    - A console.redhat.com service account is required for this Setup
+    - A console.redhat.com service account is required
     - The service account must have the correct roles assigned in C.R.C for Cost management access
 
 1. Create new resource group and storage account for filtered reports using these `instructions <https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_

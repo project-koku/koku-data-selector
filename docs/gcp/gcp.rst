@@ -3,7 +3,7 @@
 GCP: Customer-filtered data
 ===========================
 *Prerequisites:*
-    - A console.redhat.com service account is required for this Setup
+    - A console.redhat.com service account is required
     - The service account must have the correct roles assigned in C.R.C for Cost management access
 
 1. Create new bucket for filtered reports 
