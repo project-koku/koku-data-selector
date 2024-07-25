@@ -6,6 +6,9 @@ Azure: Customer-filtered data
 
 Azure resource group and storage account
 ========================================
+*Prerequisites:*
+    - A console.redhat.com service account is required for this Setup
+    - The service account must have the correct roles assigned in C.R.C for Cost management access
 
 1. Create new resource group and storage account for filtered reports using these `instructions <https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_
 
@@ -106,7 +109,7 @@ Key vault Credentials
 8. Click on new vault and select secrets in the blade
 9. Generate/import two new secrets
     i. Secret names as follows *ClientIdFromVault* and *ClientSecretFromVault*
-    ii. Giving them a secret value matching your console.redhat.com username and password respectively
+    ii. Giving them a secret value matching your console.redhat.com service account client_id and client_secret respectively
 
 10. Click on each secret - select the version
 11. Copy the secret Identifier URI
