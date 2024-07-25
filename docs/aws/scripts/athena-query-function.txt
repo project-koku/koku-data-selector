@@ -19,7 +19,7 @@ file_name = 'query-data.json'
 # file_name = 'finalized-data.json'
 
 # Vars to Change!
-source_uuid = "CHANGEME"                                    # Cost Management source_uuid
+integration_uuid = "CHANGEME"                                    # Cost Management integration_uuid
 bucket = 'CHANGEME'                                         # Bucket created for query results
 database = 'CHAGNEME'                                       # Database to execute athena queries
 export_name = 'CHANGEME'                                    # Name of your data export for athena
@@ -45,7 +45,7 @@ def lambda_handler(event, context):
 
     # Save query execution to s3 object
     s3 = boto3.client('s3')
-    json_object = {"source_uuid": source_uuid, "bill_year": year, "bill_month": month, "query_execution_id": response.get("QueryExecutionId"), "result_prefix": output}
+    json_object = {"source_uuid": integration_uuid, "bill_year": year, "bill_month": month, "query_execution_id": response.get("QueryExecutionId"), "result_prefix": output}
     s3.put_object(
         Body=json.dumps(json_object),
         Bucket=bucket,

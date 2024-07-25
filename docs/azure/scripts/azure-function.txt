@@ -40,7 +40,7 @@ def main(mytimer: func.TimerRequest) -> None:
     # Required vars to update
     client_id = os.getenv('ClientIdFromVault')                              # C.R.C service account client id
     client_secret = os.getenv('ClientSecretFromVault')                      # C.R.C service account client secret
-    source_id = "CHANGE-ME"                                                 # Cost management source_id
+    integration_id = "CHANGE-ME"                                            # Cost management integration_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
     cost_export_dir = "export-dir/export-name"                              # Cost export dir + Cost export name
@@ -96,7 +96,7 @@ def main(mytimer: func.TimerRequest) -> None:
         'Authorization': f'Bearer {token_response.json().get("access_token")}',
         'Accept': 'application/json'
     }
-    json_data = {"source": source_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
+    json_data = {"source": integration_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, headers=headers)
     logging.info(f'Post result: {resp}')
 
