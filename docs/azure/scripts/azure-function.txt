@@ -1,5 +1,6 @@
 import datetime
 import calendar
+import json
 import logging
 import os
 import uuid
@@ -11,6 +12,57 @@ from azure.storage.blob import BlobServiceClient, ContainerClient
 
 import azure.functions as func
 
+def extract_vcpus(info):
+    # used to extract vcpu details
+        try:
+            json_data = json.loads(info)
+            if isinstance(json_data, dict):
+                return json_data.get('vcpus')
+        except (json.JSONDecodeError, TypeError, ValueError):
+            return None
+        return None
+
+def extract_com_redhat_rhel(tags):
+    # used to find rhel metering tags
+    try:
+        json_data = json.loads(tags)
+        if isinstance(json_data, dict):
+            return json_data.get('com_redhat_rhel') is not None
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return False
+    return False
+
+def rhel_filtering(df):
+    # Set constants
+    tags = "tags"
+    additionalinfo = "additionalinfo"
+    vcpus = "vcpus"
+    rhel_tag = "com_redhat_rhel"
+
+    # filtering specific for rhel metering
+    # Filter on Virtual machines
+    df = df[(df["metercategory"].astype(str).str.contains("Virtual Machines"))]
+
+    # Set additional info and tags columns to lower for easier filtering
+    df[additionalinfo] = df[additionalinfo].str.lower()
+    df[tags] = df[tags].str.lower()
+
+    # Extract line items with vcpus and com_redhat_rhel tags
+    df[vcpus] = df[additionalinfo].apply(extract_vcpus)
+    df[rhel_tag] = df[tags].apply(extract_com_redhat_rhel)
+
+    # Convert 'vcpus' to numeric, forcing errors to NaN (in case of any non-numeric values)
+    df[vcpus] = pd.to_numeric(df[vcpus], errors='coerce')
+
+    # Filter rows where 'vcpus' is not null and greater than 0 and 'com_redhat_rhel' is True
+    filtered_df = df[df[vcpus].notnull() & (df[vcpus] > 0) & df[rhel_tag]]
+
+    # Drop the 'com_redhat_rhel' and 'vcpus' columns as they are no longer needed and return the filtered data set
+    return filtered_df.drop(columns=[rhel_tag, vcpus])
+
+def hcs_filtering(df):
+    # Filtering specific to Hybrid Commited Spend
+    return df.loc[((df["publisherType"] == "Azure") & (df["meterSubCategory"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat")))))]
 
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
@@ -69,8 +121,17 @@ def main(mytimer: func.TimerRequest) -> None:
     with open(blobjct, "wb") as f:
         data.readinto(f)
     df = pd.read_csv(blobjct)
+    # cast columns to lower
+    df.columns = df.columns.str.lower()
 
-    filtered_data = df.loc[((df["publisherType"] == "Azure") & (df["meterSubCategory"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat")))))]
+    # You must uncomment either hcs_filtering OR rhel_filtering depending on your usecase NOT BOTH #
+    # If you want to filter different data entirely you will need to build your own *_filtering query #
+
+    # Hybrid Commited Spend filtering #
+    # filtered_data = hcs_filtering(df)
+
+    # RHEL subscriptions filtering #
+    # filtered_data = rhel_filtering(df)
 
     filtered_data_csv = filtered_data.to_csv (index_label="idx", encoding = "utf-8")
 

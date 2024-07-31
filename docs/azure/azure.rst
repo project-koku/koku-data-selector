@@ -128,8 +128,9 @@ Adding Vault Creds To functions
 
 Function Code and Queries
 =========================
-* For standard Hybrid Commited Spend queries use the default `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
-* For custom queries non HCS we need to edit line 53 in the above function code.
+* The default script has the option of Hybrid commited spend or RHEL subscription filtering `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function-hcs.txt>`_
+    * All you need to do is uncomment the relevant line, either `filtered_data = hcs_filtering(df)` OR `filtered_data = rhel_filtering(df)` NOT both
+* For custom queries you will need to write your own filtering.
     * Initial query to grab all data: **filtered_data = df**
     * To filter the data you need to add some dataframe filtering, see Examples:
         * Exact matching: **df.loc[(df["publisherType"] == "Marketplace")]** would filter out all data that does not have a publisherType of Marketplace.
