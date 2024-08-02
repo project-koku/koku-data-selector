@@ -9,6 +9,7 @@ Azure resource group and storage account
 *Prerequisites:*
     - A console.redhat.com service account is required
     - The service account must have the correct roles assigned in C.R.C for Cost management access
+    - Filtered CSV files *MUST* have the required columns as defined in `Azure filtering required columns`_
 
 1. Create new resource group and storage account for filtered reports using these `instructions <https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_
 
@@ -133,13 +134,78 @@ Function Code and Queries
 * For custom queries you will need to write your own filtering.
     * Initial query to grab all data: **filtered_data = df**
     * To filter the data you need to add some dataframe filtering, see Examples:
-        * Exact matching: **df.loc[(df["publisherType"] == "Marketplace")]** would filter out all data that does not have a publisherType of Marketplace.
-        * Contains: **df.loc[df["publisherName"].astype(str).str.contains("Red Hat")]** would filter all data that does not contain Red Hat in the publisherName.
+        * Exact matching: **df.loc[(df["publishertype"] == "Marketplace")]** would filter out all data that does not have a publisherType of Marketplace.
+        * Contains: **df.loc[df["publishername"].astype(str).str.contains("Red Hat")]** would filter all data that does not contain Red Hat in the publisherName.
     * It's also possible to stack these by using **&** (for AND) and **|** (for OR) with your **df.loc** clause.
     * Examples:
-        1. **subscriptionId** Used to filter specific subscriptions.
-        2. **resourceGroup** Used to filter specific resource groups.
-        3. **resourceLocation** Used to filter data in a specifc region.
-        4. **resourceType**, **instanceId** Used to filter resource types or by a specifc instance.
-        5. **serviceName**, **serviceTier**, **meterCategory** and **meterSubcategory** can be used to filter specifc service types.
+        1. **subscriptionid** Used to filter specific subscriptions.
+        2. **resourcegroup** Used to filter specific resource groups.
+        3. **resourcelocation** Used to filter data in a specifc region.
+        4. **resourcetype** Used to filter resource types.
+        5. **servicename**, **servicetier**, **metercategory** and **metersubcategory** can be used to filter specifc service types.
     * Once your custom query is built just replace line 53 with your revised version.
+
+Azure filtering required columns
+================================
+
+* Below is a list of columns that *MUST* be included and populated for Cost management to process the report correctly
+* These columns *MUST* not include spaces, dashes, underscores and *MUST* be in lower case
+
+    ..code block:
+
+    'accountname',
+    'accountownerid',
+    'additionalinfo',
+    'availabilityzone',
+    'billingaccountid',
+    'billingaccountname',
+    'billingcurrency',
+    'billingperiodenddate',
+    'billingperiodstartdate',
+    'billingprofileid',
+    'billingprofilename',
+    'chargetype',
+    'consumedservice',
+    'costcenter',
+    'costinbillingcurrency',
+    'date',
+    'effectiveprice',
+    'frequency',
+    'invoicesectionid',
+    'invoicesectionname',
+    'isazurecrediteligible',
+    'metercategory',
+    'meterid',
+    'metername',
+    'meterregion',
+    'metersubcategory',
+    'offerid',
+    'partnumber',
+    'paygprice',
+    'planname',
+    'pricingmodel',
+    'productname',
+    'productorderid',
+    'productordername',
+    'publishername',
+    'publishertype',
+    'quantity',
+    'reservationid',
+    'reservationname',
+    'resourcegroup',
+    'resourceid',
+    'resourcelocation',
+    'resourcename',
+    'resourcerate',
+    'resourcetype',
+    'servicefamily',
+    'serviceinfo1',
+    'serviceinfo2',
+    'servicename',
+    'servicetier',
+    'subscriptionid',
+    'subscriptionname',
+    'tags',
+    'term',
+    'unitofmeasure',
+    'unitprice'

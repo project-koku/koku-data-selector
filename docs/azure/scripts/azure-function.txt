@@ -32,6 +32,22 @@ def extract_com_redhat_rhel(tags):
         return False
     return False
 
+def translate_columns(df):
+    # Normalise required columns across differing azure report types
+    column_translation = {
+        "subscriptionguid": "subscriptionid",
+        "instancename": "resourceid",
+        "instanceid": "resourceid",
+        "product": "productname",
+        "billingcurrencycode": "billingcurrency",
+        "currency": "billingcurrency",
+        "usage_quantity": "quantity",
+        "resourcegroupname": "resourcegroup",
+        "pretaxcost": "costinbillingcurrency"
+    }
+    df.rename(columns=column_translation, inplace=True)
+    return df
+
 def rhel_filtering(df):
     # Set constants
     tags = "tags"
@@ -61,8 +77,13 @@ def rhel_filtering(df):
     return filtered_df.drop(columns=[rhel_tag, vcpus])
 
 def hcs_filtering(df):
+    # Set constants:
+    ptype = 'publishertype'
+    mscategory = 'metersubcategory'
+    pname = 'publishername'
+
     # Filtering specific to Hybrid Commited Spend
-    return df.loc[((df["publisherType"] == "Azure") & (df["meterSubCategory"].astype(str).str.contains("Red Hat"))) | ((df["publisherType"] == "Marketplace") & ((df["publisherName"].astype(str).str.contains("Red Hat")) | (((df["publisherName"] == "Microsoft") | (df["publisherName"] == "Azure")) & (df["meterSubCategory"].astype(str).str.contains("Red Hat")))))]
+    return df.loc[((df[ptype] == "Azure") & (df[mscategory].astype(str).str.contains("Red Hat"))) | ((df[ptype] == "Marketplace") & ((df[pname].astype(str).str.contains("Red Hat")) | (((df[pname] == "Microsoft") | (df[pname] == "Azure")) & (df[mscategory].astype(str).str.contains("Red Hat")))))]
 
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
