@@ -34,17 +34,17 @@ def extract_com_redhat_rhel(tags):
 
 def translate_columns(df):
     # Normalise required columns across differing azure report types
-    column_translation = {
-        "subscriptionguid": "subscriptionid",
-        "instancename": "resourceid",
-        "instanceid": "resourceid",
-        "product": "productname",
+    column_translation = {        
         "billingcurrencycode": "billingcurrency",
         "currency": "billingcurrency",
-        "usage_quantity": "quantity",
+        "instanceid": "resourceid", 
+        "instancename": "resourceid",
+        "pretaxcost": "costinbillingcurrency",
+        "product": "productname",
         "resourcegroupname": "resourcegroup",
-        "pretaxcost": "costinbillingcurrency"
-    }
+        "subscriptionguid": "subscriptionid",
+        "usage_quantity": "quantity"
+        }
     df.rename(columns=column_translation, inplace=True)
     return df
 

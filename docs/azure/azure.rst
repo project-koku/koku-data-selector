@@ -129,7 +129,7 @@ Adding Vault Creds To functions
 
 Function Code and Queries
 =========================
-* The default script has the option of Hybrid commited spend or RHEL subscription filtering `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function-hcs.txt>`_
+* The default script has the option of Hybrid commited spend or RHEL subscription filtering `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
     * All you need to do is uncomment the relevant line, either `filtered_data = hcs_filtering(df)` OR `filtered_data = rhel_filtering(df)` NOT both
 * For custom queries you will need to write your own filtering.
     * Initial query to grab all data: **filtered_data = df**
@@ -209,3 +209,9 @@ Azure filtering required columns
     'term',
     'unitofmeasure',
     'unitprice'
+
+* Some of these required columns differ depending on the base report type in use, the example script handles these differences already with the following:
+
+    ..code block:
+
+    column_translation = {"billingcurrencycode": "billingcurrency", "currency": "billingcurrency", "instanceid": "resourceid", "instancename": "resourceid", "pretaxcost": "costinbillingcurrency", "product": "productname", "resourcegroupname": "resourcegroup", "subscriptionguid": "subscriptionid", "usage_quantity": "quantity"}
