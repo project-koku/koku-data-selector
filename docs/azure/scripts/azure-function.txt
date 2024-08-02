@@ -43,6 +43,7 @@ def translate_columns(df):
         "product": "productname",
         "resourcegroupname": "resourcegroup",
         "subscriptionguid": "subscriptionid",
+        "servicename": "metercategory",
         "usage_quantity": "quantity"
         }
     df.rename(columns=column_translation, inplace=True)

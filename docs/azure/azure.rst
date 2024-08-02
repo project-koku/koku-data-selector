@@ -153,40 +153,24 @@ Azure filtering required columns
 
     ..code block:
 
-    'accountname',
-    'accountownerid',
     'additionalinfo',
-    'availabilityzone',
     'billingaccountid',
     'billingaccountname',
     'billingcurrency',
     'billingperiodenddate',
     'billingperiodstartdate',
-    'billingprofileid',
-    'billingprofilename',
     'chargetype',
     'consumedservice',
-    'costcenter',
     'costinbillingcurrency',
     'date',
     'effectiveprice',
-    'frequency',
-    'invoicesectionid',
-    'invoicesectionname',
-    'isazurecrediteligible',
     'metercategory',
     'meterid',
     'metername',
     'meterregion',
     'metersubcategory',
     'offerid',
-    'partnumber',
-    'paygprice',
-    'planname',
-    'pricingmodel',
     'productname',
-    'productorderid',
-    'productordername',
     'publishername',
     'publishertype',
     'quantity',
@@ -196,17 +180,11 @@ Azure filtering required columns
     'resourceid',
     'resourcelocation',
     'resourcename',
-    'resourcerate',
-    'resourcetype',
     'servicefamily',
     'serviceinfo1',
     'serviceinfo2',
-    'servicename',
-    'servicetier',
     'subscriptionid',
-    'subscriptionname',
     'tags',
-    'term',
     'unitofmeasure',
     'unitprice'
 
@@ -214,4 +192,4 @@ Azure filtering required columns
 
     ..code block:
 
-    column_translation = {"billingcurrencycode": "billingcurrency", "currency": "billingcurrency", "instanceid": "resourceid", "instancename": "resourceid", "pretaxcost": "costinbillingcurrency", "product": "productname", "resourcegroupname": "resourcegroup", "subscriptionguid": "subscriptionid", "usage_quantity": "quantity"}
+    column_translation = {"billingcurrencycode": "billingcurrency", "currency": "billingcurrency", "instanceid": "resourceid", "instancename": "resourceid", "pretaxcost": "costinbillingcurrency", "product": "productname", "resourcegroupname": "resourcegroup", "subscriptionguid": "subscriptionid", "servicename": "metercategory", "usage_quantity": "quantity"}
