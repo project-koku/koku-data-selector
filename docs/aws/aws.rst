@@ -177,44 +177,9 @@ Configure Athena
 
 1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_
 2. Make sure Athena is configured to store query results to the desired S3 bucket see `Querying <https://docs.aws.amazon.com/athena/latest/ug/querying.html>`_
-3. Once Athena is configured the following query will return the filtered dataset specific to your Red Hat commitment. The table name following the FROM keyword would be updated to match the name of the table configured in your Athena instance. The year and month can be updated to gather data specific to a particular month.
-
-.. code-block::
-
-    SELECT *
-    FROM athena_cost_and_usage
-    WHERE (
-            bill_billing_entity = 'AWS Marketplace'
-            AND line_item_legal_entity like '%Red Hat%'
-        )
-        OR (
-            line_item_legal_entity like '%Amazon Web Services%'
-            AND line_item_line_item_description like '%Red Hat%'
-        )
-        OR (
-            line_item_legal_entity like '%Amazon Web Services%'
-            AND line_item_line_item_description like '%RHEL%'
-        )
-        OR (
-            line_item_legal_entity like '%AWS%'
-            AND line_item_line_item_description like '%Red Hat%'
-        )
-        OR (
-            line_item_legal_entity like '%AWS%'
-            AND line_item_line_item_description like '%RHEL%'
-        )
-        OR (
-            line_item_legal_entity like '%AWS%'
-            AND product_product_name like '%Red Hat%'
-        )
-        OR (
-            line_item_legal_entity like '%Amazon Web Services%'
-            AND product_product_name like '%Red Hat%'
-        )
-        AND year = '2022'
-        AND month = '10'
-
-4. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
+3. Once Athena is configured you can build a query to filter your data to select lineitems.
+4. See `Building an Athena Query`_
+5. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
 
 
 Secrets Manager Credentials
@@ -277,3 +242,80 @@ a. Create EventBridge schedule for Athena query function
     xiv. Permissions: Create new role on the fly
     xv. NEXT
     xvi. Review and create
+
+
+
+Building an Athena Query
+========================
+
+* Examples:
+    1. **athena_cost_and_usage** This should match your table name in Athena.
+    2. **bill_billing_entity** Used to filter specific billing entities.
+    3. **line_item_legal_entity** Used to filter specifc legal entities.
+    4. **line_item_line_item_description** Used to filter on specific line item descriptions.
+    5. **year** Used to filter to a specific billing year.
+    6. **month** Used to filter on a specific billing month.
+* See the following example queires for HCS spend or RHEL ELS subscriptions.
+    * The table name **athena_cost_and_usage** MUST be updated to match the name of your configured Athena table.
+    * The **year** and **month** can be updated to gather data specific to a particular month.
+
+* The below example query will return filtered data specific for your Hybrid Commited Spend commitment.
+
+.. code-block::
+
+    SELECT *
+    FROM athena_cost_and_usage
+    WHERE (
+            bill_billing_entity = 'AWS Marketplace'
+            AND line_item_legal_entity like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND line_item_line_item_description like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND line_item_line_item_description like '%RHEL%'
+        )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND line_item_line_item_description like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND line_item_line_item_description like '%RHEL%'
+        )
+        OR (
+            line_item_legal_entity like '%AWS%'
+            AND product_product_name like '%Red Hat%'
+        )
+        OR (
+            line_item_legal_entity like '%Amazon Web Services%'
+            AND product_product_name like '%Red Hat%'
+        )
+        AND year = '2024'
+        AND month = '07'
+
+
+* The below example query will return filtered data specific to your RHEL subscriptions
+    *  *Note:* you MUST change **resource_tags_user_tag_column** in the below query to match your RHEL tag column
+
+        .. code-block::
+
+            SELECT *
+            FROM athena_cost_and_usage
+            WHERE (
+                    line_item_product_code = 'AmazonEC2'
+                    AND strpos(lower(resource_tags_user_tag_column), 'com_redhat_rhel') > 0
+                )
+                AND year = '2024'
+                AND month = '07'
+
+    * Query to grab a list of all tagging columns
+
+        .. code-block::
+
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'athena_cost_and_usage'
+            AND column_name LIKE 'resource_tags_%';
