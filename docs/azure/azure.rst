@@ -156,7 +156,7 @@ Azure filtering required columns
     'additionalinfo',
     'billingaccountid',
     'billingaccountname',
-    'billingcurrency',
+    'billingcurrencycode',
     'billingperiodenddate',
     'billingperiodstartdate',
     'chargetype',
@@ -192,4 +192,4 @@ Azure filtering required columns
 
     ..code block:
 
-    column_translation = {"billingcurrencycode": "billingcurrency", "currency": "billingcurrency", "instanceid": "resourceid", "instancename": "resourceid", "pretaxcost": "costinbillingcurrency", "product": "productname", "resourcegroupname": "resourcegroup", "subscriptionguid": "subscriptionid", "servicename": "metercategory", "usage_quantity": "quantity"}
+    column_translation = {"billingcurrency": "billingcurrencycode", "currency": "billingcurrencycode", "instanceid": "resourceid", "instancename": "resourceid", "pretaxcost": "costinbillingcurrency", "product": "productname", "resourcegroupname": "resourcegroup", "subscriptionguid": "subscriptionid", "servicename": "metercategory", "usage_quantity": "quantity"}

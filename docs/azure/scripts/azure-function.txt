@@ -35,8 +35,8 @@ def extract_com_redhat_rhel(tags):
 def translate_columns(df):
     # Normalise required columns across differing azure report types
     column_translation = {        
-        "billingcurrencycode": "billingcurrency",
-        "currency": "billingcurrency",
+        "billingcurrency": "billingcurrencycode",
+        "currency": "billingcurrencycode",
         "instanceid": "resourceid", 
         "instancename": "resourceid",
         "pretaxcost": "costinbillingcurrency",
