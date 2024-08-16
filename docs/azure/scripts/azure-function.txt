@@ -155,6 +155,9 @@ def main(mytimer: func.TimerRequest) -> None:
     # RHEL subscriptions filtering #
     # filtered_data = rhel_filtering(df)
 
+    # custom filtering basic example #
+    # filtered_data = df.loc[(df["publishertype"] == "Marketplace")] 
+
     filtered_data_csv = filtered_data.to_csv (index_label="idx", encoding = "utf-8")
 
     blob_client = blob_service_client.get_blob_client(container=filtered_data_container, blob=output_blob_name)
