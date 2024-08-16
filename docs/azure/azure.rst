@@ -132,7 +132,6 @@ Function Code and Queries
 * The default script has the option of Hybrid commited spend or RHEL subscription filtering `azure_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt>`_
     * All you need to do is uncomment the relevant line, either `filtered_data = hcs_filtering(df)` OR `filtered_data = rhel_filtering(df)` NOT both
 * For custom queries you will need to write your own filtering.
-    * Initial query to grab all data: **filtered_data = df**
     * To filter the data you need to add some dataframe filtering, see Examples:
         * Exact matching: **df.loc[(df["publishertype"] == "Marketplace")]** would filter out all data that does not have a publisherType of Marketplace.
         * Contains: **df.loc[df["publishername"].astype(str).str.contains("Red Hat")]** would filter all data that does not contain Red Hat in the publisherName.
@@ -143,7 +142,7 @@ Function Code and Queries
         3. **resourcelocation** Used to filter data in a specifc region.
         4. **resourcetype** Used to filter resource types.
         5. **servicename**, **servicetier**, **metercategory** and **metersubcategory** can be used to filter specifc service types.
-    * Once your custom query is built just replace line 53 with your revised version.
+    * Once your custom query is built assign your filtered data to **filtered_data = df[My custom query]**.
 
 Azure filtering required columns
 ================================
