@@ -142,7 +142,7 @@ Function Code and Queries
         3. **resourcelocation** Used to filter data in a specifc region.
         4. **resourcetype** Used to filter resource types.
         5. **servicename**, **servicetier**, **metercategory** and **metersubcategory** can be used to filter specifc service types.
-    * Once your custom query is built assign your filtered data to **filtered_data = df[My custom query]**.
+    * Once your custom query is built update the custom query in the example script under  **# custom filtering basic example #**.
 
 Azure filtering required columns
 ================================
