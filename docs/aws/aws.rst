@@ -177,7 +177,88 @@ Configure Athena
 
 1. Amazon strongly recommends using CloudFormation and provides instruction on how to do so `here <https://docs.aws.amazon.com/cur/latest/userguide/use-athena-cf.html>`_
 2. Make sure Athena is configured to store query results to the desired S3 bucket see `Querying <https://docs.aws.amazon.com/athena/latest/ug/querying.html>`_
-3. Once Athena is configured the following query will return the filtered dataset specific to your Red Hat commitment. The table name following the FROM keyword would be updated to match the name of the table configured in your Athena instance. The year and month can be updated to gather data specific to a particular month.
+3. Once Athena is configured you can build a query to filter your data to select lineitems.
+4. See `Building an Athena Query`_
+5. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
+
+
+Secrets Manager Credentials
+===========================
+
+1. From AWS Secrets Manager - Store a new secret
+2. Secret type: Other type of secret
+3. Create the following Keys:
+    i. client_id
+    ii. client_secret
+4. Populate the values with the appropriate values from your service account
+5. Continue to name your secret
+6. Continue through and store your secret
+7. Update the Role created for your Lambda functions and Include
+
+.. code-block::
+
+    {
+        "Sid": "VisualEditor3",
+        "Effect": "Allow",
+        "Action": [
+            "secretsmanager:GetSecretValue",
+            "secretsmanager:DescribeSecret"
+        ],
+        "Resource": "*"
+    }
+
+
+Function Code and Athena Queries
+================================
+* For standard Hybrid Commited Spend queries use the default `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_
+    * Initial query to grab all data: **query = f"SELECT * FROM {database}.{export_name} WHERE year = '{year}' AND month = '{month}'"**
+    * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
+    * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
+    * Examples:
+        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
+        2. **line_item_product_code**, **line_item_resource_id** or **product_product_name** Used to filter specific product/services based on Code, resource_id or Name.
+        3. **product_location**, **product_region** Used to filter data in a specifc region.
+        4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specifc instance.
+    * Once your custom query is built just replace line 18 with your revised version.
+
+
+Creating Amazon Eventbridges
+============================
+a. Create EventBridge schedule for Athena query function
+    i. Add a Name/Description
+    ii. Select group default
+    iii. Occurrence: Recurring schedule
+    iv. Type: Cron-based
+    v. Set cron schedule `(example: 0 9 * * ? *)`
+    vi. Set flexible time window
+    vii. NEXT
+    viii. Target detail: AWS Lambda invoke
+    ix. Select lambda function previously created
+    x. NEXT
+    xi. Enable the schedule
+    xii. Configure retry logic
+    xiii. Encryption (Ignore)
+    xiv. Permissions: Create new role on the fly
+    xv. NEXT
+    xvi. Review and create
+
+
+
+Building an Athena Query
+========================
+
+* Examples:
+    1. **athena_cost_and_usage** This should match your table name in Athena.
+    2. **bill_billing_entity** Used to filter specific billing entities.
+    3. **line_item_legal_entity** Used to filter specific legal entities.
+    4. **line_item_line_item_description** Used to filter on specific line item descriptions.
+    5. **year** Used to filter to a specific billing year.
+    6. **month** Used to filter on a specific billing month.
+* See the following example queries for HCS spend or RHEL ELS subscriptions.
+    * The table name **athena_cost_and_usage** MUST be updated to match the name of your configured Athena table.
+    * The **year** and **month** can be updated to gather data specific to a particular month.
+
+* The below example query will return filtered data specific for your Hybrid Committed Spend commitment.
 
 .. code-block::
 
@@ -211,69 +292,29 @@ Configure Athena
             line_item_legal_entity like '%Amazon Web Services%'
             AND product_product_name like '%Red Hat%'
         )
-        AND year = '2022'
-        AND month = '10'
-
-4. At this point you can download the query results directly to file from the Athena console, or reference the location of the saved result in S3†
+        AND year = '2024'
+        AND month = '07'
 
 
-Secrets Manager Credentials
-===========================
+* The below example query will return filtered data specific to your RHEL subscriptions
+    *  *Note:* you MUST change **resource_tags_user_tag_column** in the below query to match your RHEL tag column
 
-1. From AWS Secrets Manager - Store a new secret
-2. Secret type: Other type of secret
-3. Create the following Keys:
-    i. client_id
-    ii. client_secret
-4. Populate the values with the appropriate values from your service account
-5. Continue to name your secret
-6. Continue through and store your secret
-7. Update the Role created for your Lambda functions and Include
+        .. code-block::
 
-.. code-block::
+            SELECT *
+            FROM athena_cost_and_usage
+            WHERE (
+                    line_item_product_code = 'AmazonEC2'
+                    AND strpos(lower(resource_tags_user_tag_column), 'com_redhat_rhel') > 0
+                )
+                AND year = '2024'
+                AND month = '07'
 
-    {
-        "Sid": "VisualEditor3",
-        "Effect": "Allow",
-        "Action": [
-            "secretsmanager:GetSecretValue",
-            "secretsmanager:DescribeSecret"
-        ],
-        "Resource": "*"
-    }
+    * Query to grab a list of all tagging columns
 
+        .. code-block::
 
-Function Code and Athena Queries
-================================
-* For standard Hybrid Commited Spend queries use the default `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_
-* For custom queries non HCS we need to edit line 18 in the above function code.
-    * Initial query to grab all data: **query = f"SELECT * FROM {database}.{export_name} WHERE year = '{year}' AND month = '{month}'"**
-    * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
-    * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
-    * Examples:
-        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
-        2. **line_item_product_code**, **line_item_resource_id** or **product_product_name** Used to filter specific product/services based on Code, resource_id or Name.
-        3. **product_location**, **product_region** Used to filter data in a specifc region.
-        4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specifc instance.
-    * Once your custom query is built just replace line 18 with your revised version.
-
-
-Creating Amazon Eventbridges
-============================
-a. Create EventBridge schedule for Athena query function
-    i. Add a Name/Description
-    ii. Select group default
-    iii. Occurrence: Recurring schedule
-    iv. Type: Cron-based
-    v. Set cron schedule `(example: 0 9 * * ? *)`
-    vi. Set flexible time window
-    vii. NEXT
-    viii. Target detail: AWS Lambda invoke
-    ix. Select lambda function previously created
-    x. NEXT
-    xi. Enable the schedule
-    xii. Configure retry logic
-    xiii. Encryption (Ignore)
-    xiv. Permissions: Create new role on the fly
-    xv. NEXT
-    xvi. Review and create
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'athena_cost_and_usage'
+            AND column_name LIKE 'resource_tags_%';
