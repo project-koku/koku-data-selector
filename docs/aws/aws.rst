@@ -211,7 +211,6 @@ Secrets Manager Credentials
 Function Code and Athena Queries
 ================================
 * For standard Hybrid Commited Spend queries use the default `athena_function <https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt>`_
-* For custom queries non HCS we need to edit line 18 in the above function code.
     * Initial query to grab all data: **query = f"SELECT * FROM {database}.{export_name} WHERE year = '{year}' AND month = '{month}'"**
     * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
     * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
@@ -251,15 +250,15 @@ Building an Athena Query
 * Examples:
     1. **athena_cost_and_usage** This should match your table name in Athena.
     2. **bill_billing_entity** Used to filter specific billing entities.
-    3. **line_item_legal_entity** Used to filter specifc legal entities.
+    3. **line_item_legal_entity** Used to filter specific legal entities.
     4. **line_item_line_item_description** Used to filter on specific line item descriptions.
     5. **year** Used to filter to a specific billing year.
     6. **month** Used to filter on a specific billing month.
-* See the following example queires for HCS spend or RHEL ELS subscriptions.
+* See the following example queries for HCS spend or RHEL ELS subscriptions.
     * The table name **athena_cost_and_usage** MUST be updated to match the name of your configured Athena table.
     * The **year** and **month** can be updated to gather data specific to a particular month.
 
-* The below example query will return filtered data specific for your Hybrid Commited Spend commitment.
+* The below example query will return filtered data specific for your Hybrid Committed Spend commitment.
 
 .. code-block::
 
