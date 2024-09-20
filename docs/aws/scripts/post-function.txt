@@ -75,7 +75,7 @@ def lambda_handler(event, context):
 
     headers = {
         'Authorization': f'Bearer {token_response.json().get("access_token")}',
-        'Accept': 'application/json'
+        'Content-Type': 'application/json'
     }
     url = "https://console.redhat.com/api/cost-management/v1/ingress/reports/"
     resp = http.request('post', url, headers=headers, body=encoded_data)
