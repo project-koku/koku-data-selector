@@ -66,8 +66,8 @@ def lambda_handler(event, context):
         "grant_type": "client_credentials"
     }
     http = urllib3.PoolManager()
-    
-    token_response = http.request('post', token_url, headers=token_headers, data=token_data)
+    encoded_token_data = json.dumps(token_data).encode('utf-8')
+    token_response = http.request('post', token_url, headers=token_headers, body=encoded_token_data)
 
     # Post results to console.redhat.com API
     json_data = {"source": json_content["integration_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
