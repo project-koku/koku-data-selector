@@ -29,7 +29,7 @@ CLIENT_ID = json_creds.get("client_id")         # C.R.C service account client_i
 CLIENT_SECRET = json_creds.get("client_secret") # C.R.C service account client_secret
 bucket = "CHANGEME"                             # Bucket for athena query results
 
-file_name = 'query_data.json'
+file_name = 'query-data.json'
 # file_name = 'finalized_data.json'
 
 
@@ -61,17 +61,18 @@ def lambda_handler(event, context):
         'Content-Type': 'application/x-www-form-urlencoded'
     }
     token_data = {
-        "client_id": client_id,
-        "client_secret": client_secret,
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
         "grant_type": "client_credentials"
     }
-    token_response = requests.post(token_url, headers=token_headers, data=token_data)
+    http = urllib3.PoolManager()
+    
+    token_response = http.request('post', token_url, headers=token_headers, data=token_data)
 
     # Post results to console.redhat.com API
     json_data = {"source": json_content["integration_uuid"], "reports_list": reports_list, "bill_year": json_content["bill_year"], "bill_month": json_content["bill_month"]}
     encoded_data = json.dumps(json_data).encode('utf-8')
 
-    http = urllib3.PoolManager()
     headers = {
         'Authorization': f'Bearer {token_response.json().get("access_token")}',
         'Accept': 'application/json'
