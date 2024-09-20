@@ -30,7 +30,7 @@ CLIENT_SECRET = json_creds.get("client_secret") # C.R.C service account client_s
 bucket = "CHANGEME"                             # Bucket for athena query results
 
 file_name = 'query-data.json'
-# file_name = 'finalized_data.json'
+# file_name = 'finalized-data.json'
 
 
 def lambda_handler(event, context):
