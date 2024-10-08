@@ -1,5 +1,6 @@
 import boto3
 import json
+import urllib.parse
 import urllib3
 from base64 import b64encode
 from botocore.exceptions import ClientError
@@ -66,7 +67,7 @@ def lambda_handler(event, context):
         "grant_type": "client_credentials"
     }
     http = urllib3.PoolManager()
-    encoded_token_data = json.dumps(token_data).encode('utf-8')
+    encoded_token_data = urllib.parse.urlencode(token_data).encode('utf-8')
     token_response = http.request('post', token_url, headers=token_headers, body=encoded_token_data)
 
     # Post results to console.redhat.com API
