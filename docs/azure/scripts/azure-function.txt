@@ -184,7 +184,7 @@ def main(mytimer: func.TimerRequest) -> None:
     }
     json_data = {"source": integration_id, "reports_list": [f"{filtered_data_container}/{output_blob_name}"], "bill_year": year, "bill_month": month}
     resp = requests.post(url, json=json_data, headers=headers)
-    logging.info(f'Post result: {resp}')
+    logging.info(f'Post result: {resp.json()}')
 
     if mytimer.past_due:
         logging.info('The timer is past due!')

@@ -137,4 +137,4 @@ def get_filtered_data(request):
     for query_date in query_dates:
         files_list += create_reports(query_date.date())
     resp = post_data(files_list)
-    return f'Files posted! {resp}'
+    return f'Files posted! {resp.json()}'
