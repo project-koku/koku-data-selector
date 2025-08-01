@@ -128,7 +128,7 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
     report_range = f"{month_start.strftime(timeformat)}-{month_end.strftime(timeformat)}"
     report_path = f"{cost_export_dir}/{report_range}"
 
-    # Set container cient
+    # Get container client
     container_client = ContainerClient(cost_export_store, credential=default_credential, container_name=cost_export_container)
 
     # Get latest report file
