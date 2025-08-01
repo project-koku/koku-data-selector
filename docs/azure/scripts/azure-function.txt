@@ -88,7 +88,7 @@ def hcs_filtering(df):
     # Filtering specific to Hybrid Commited Spend
     return df.loc[((df[ptype] == "Azure") & (df[mscategory].astype(str).str.contains("Red Hat"))) | ((df[ptype] == "Marketplace") & ((df[pname].astype(str).str.contains("Red Hat")) | (((df[pname] == "Microsoft") | (df[pname] == "Azure")) & (df[mscategory].astype(str).str.contains("Red Hat")))))]
 
-# The cron shedule passed in here needs to match what you set when creating the function.
+# The cron schedule passed in here needs to match what you set when creating the function.
 @app.timer_trigger(schedule="0 9 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
 def timer_trigger(myTimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.now().replace(
