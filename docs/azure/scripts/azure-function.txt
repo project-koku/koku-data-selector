@@ -12,6 +12,8 @@ from azure.storage.blob import BlobServiceClient, ContainerClient
 
 import azure.functions as func
 
+app = func.FunctionApp()
+
 def extract_vcpus(info):
     # used to extract vcpu details
         try:
@@ -86,8 +88,10 @@ def hcs_filtering(df):
     # Filtering specific to Hybrid Commited Spend
     return df.loc[((df[ptype] == "Azure") & (df[mscategory].astype(str).str.contains("Red Hat"))) | ((df[ptype] == "Marketplace") & ((df[pname].astype(str).str.contains("Red Hat")) | (((df[pname] == "Microsoft") | (df[pname] == "Azure")) & (df[mscategory].astype(str).str.contains("Red Hat")))))]
 
-def main(mytimer: func.TimerRequest) -> None:
-    utc_timestamp = datetime.datetime.utcnow().replace(
+# The cron shedule passed in here needs to match what you set when creating the function.
+@app.timer_trigger(schedule="0 9 * * *", arg_name="myTimer", run_on_startup=False, use_monitor=False) 
+def timer_trigger(myTimer: func.TimerRequest) -> None:
+    utc_timestamp = datetime.datetime.now().replace(
         tzinfo=datetime.timezone.utc).isoformat()
 
     default_credential = DefaultAzureCredential()
@@ -117,7 +121,7 @@ def main(mytimer: func.TimerRequest) -> None:
     integration_id = "CHANGE-ME"                                            # Cost management integration_id
     cost_export_store = "https://CHANGE-ME.blob.core.windows.net"           # Cost export storage account url
     cost_export_container = "CHANGE-ME"                                     # Cost export container
-    cost_export_dir = "export-dir/export-name"                              # Cost export dir + Cost export name
+    cost_export_dir = "CHANGE-ME/CHANGE-ME"                                 # Cost export directory/export-name
     filtered_data_store = "https://CHANGE-ME.blob.core.windows.net"         # Filtered data storage account url
     filtered_data_container = "CHANGE-ME"                                   # Filtered data container
     timeformat = "%Y%m%d"
@@ -125,9 +129,10 @@ def main(mytimer: func.TimerRequest) -> None:
     report_path = f"{cost_export_dir}/{report_range}"
 
     # Create the BlobServiceClient object
-    blob_service_client = BlobServiceClient(filtered_data_store, credential=default_credential)
-    container_client = ContainerClient(cost_export_store, credential=default_credential, container_name=cost_export_container)
+    blob_service_client = BlobServiceClient(cost_export_store, credential=default_credential)
+    container_client = blob_service_client.get_container_client(cost_export_container)
 
+    # Get latest report file
     blob_list = container_client.list_blobs(name_starts_with=report_path)
     latest_blob = None
     for blob in blob_list:
@@ -158,10 +163,10 @@ def main(mytimer: func.TimerRequest) -> None:
     # custom filtering basic example #
     # filtered_data = df.loc[(df["publishertype"] == "Marketplace")] 
 
+    # Save new filtered report CSV to filtered container
     filtered_data_csv = filtered_data.to_csv (index_label="idx", encoding = "utf-8")
-
-    blob_client = blob_service_client.get_blob_client(container=filtered_data_container, blob=output_blob_name)
-
+    blob_service_client_filter = BlobServiceClient(filtered_data_store, credential=default_credential)
+    blob_client = blob_service_client_filter.get_blob_client(container=filtered_data_container, blob=output_blob_name)
     blob_client.upload_blob(filtered_data_csv, overwrite=True)
 
     # Get service account token
@@ -186,7 +191,7 @@ def main(mytimer: func.TimerRequest) -> None:
     resp = requests.post(url, json=json_data, headers=headers)
     logging.info(f'Post result: {resp.json()}')
 
-    if mytimer.past_due:
+    if myTimer.past_due:
         logging.info('The timer is past due!')
 
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
