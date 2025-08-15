@@ -76,7 +76,7 @@ GCP: Customer-filtered data
 
 * Why do we query a 5 day rolling window? - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
 * Why don't we just query a full invoice month? - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
-* Don't have partitions in your bigquery dataset table? Switch to using `Non-partitions-function <https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function-non-partition-dates.txt>`_
+* Don't have partitions times in your bigquery dataset table? Remove `DATE(_PARTITIONTIME) BETWEEN DATE('{query_delta}') AND DATE('{now}')` from your query.
 * Bigquery error regarding table name? This might be because your table name differs to what we expect and is not interpreted as a string. Try switching `{table_name}` to `'{table_name}'` in your function query.
 
 Secrets Manager Credentials
