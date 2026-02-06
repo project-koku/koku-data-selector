@@ -53,7 +53,7 @@
 
 1. Setup function to send finalized billing reports
     1. Create Azure Time Trigger function using [VSCode](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-configuration)
-        1. Set the Time trigger function to run once a month after the 3rd of the month (after Azure finialises billing data)
+        1. Set the Time trigger function to run once a month after the 3rd of the month (after Azure finalizes billing data)
         2. Uncomment the following lines
 
         ```python
@@ -118,7 +118,7 @@
 
 ## Function Code and Queries
 
-* The default script has the option of Hybrid commited spend or RHEL subscription filtering [azure_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt)
+* The default script has the option of Hybrid committed spend or RHEL subscription filtering [azure_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/azure/scripts/azure-function.txt)
     * All you need to do is uncomment the relevant line, either `filtered_data = hcs_filtering(df)` OR `filtered_data = rhel_filtering(df)` NOT both
 * For custom queries you will need to write your own filtering.
     * To filter the data you need to add some dataframe filtering, see Examples:
@@ -128,9 +128,9 @@
     * Examples:
         1. **subscriptionid** Used to filter specific subscriptions.
         2. **resourcegroup** Used to filter specific resource groups.
-        3. **resourcelocation** Used to filter data in a specifc region.
+        3. **resourcelocation** Used to filter data in a specific region.
         4. **resourcetype** Used to filter resource types.
-        5. **servicename**, **servicetier**, **metercategory** and **metersubcategory** can be used to filter specifc service types.
+        5. **servicename**, **servicetier**, **metercategory** and **metersubcategory** can be used to filter specific service types.
     * Once your custom query is built update the custom query in the example script under  **# custom filtering basic example #**.
 
 ## Azure filtering required columns

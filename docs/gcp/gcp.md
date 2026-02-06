@@ -71,7 +71,7 @@
 **GOTCHAS:**
 
 * Why do we query a 5 day rolling window? - GCP has a concept of crossover data, essentially you can have billing data for the 1st of a month on the 2nd or 3rd day in a month, this logic means we don't miss that data between queries.
-* Why don't we just query a full invoice month? - Another method around crossover data could be to use invice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
+* Why don't we just query a full invoice month? - Another method around crossover data could be to use invoice months, however bigquery requests can be expensive depending on the volume of data, so we want to keep this query range a small as possible to save cost.
 * Don't have partitions times in your bigquery dataset table? Remove `DATE(_PARTITIONTIME) BETWEEN DATE('{query_delta}') AND DATE('{now}')` from your query.
 * Bigquery error regarding table name? This might be because your table name differs to what we expect and is not interpreted as a string. Try switching `{table_name}` to `'{table_name}'` in your function query.
 
@@ -85,15 +85,15 @@
 
 ## Function Code and Queries
 
-* For standard Hybrid Commited Spend queries use the default [gcp_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt)
+* For standard Hybrid Committed Spend queries use the default [gcp_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/gcp/scripts/gcp-function.txt)
 * For custom queries non HCS we need to edit line 85 in the above function code.
     * Initial query to grab all data: **query = f"SELECT {build_query_select_statement()} FROM {table_name} WHERE DATE(_PARTITIONTIME) BETWEEN '{partition_date_start}' AND {partition_date_end}"**
     * To filter the data add a **WHERE** clause, for example **WHERE service.description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
     * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
     * Examples:
-        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
+        1. **service.description** Used to filter to a specific services such as BigQuery, Cloud Logging etc.
         2. **project.id**, **project.number** or **project.name** Used to filter specific projects based on ID, Number or Name.
-        3. **location.region** Used to filter data in a specifc region.
+        3. **location.region** Used to filter data in a specific region.
     * You can preview your data in bigquery to help build your desired function query. Once built just replace line 85 with your revised query.
 
 ## Final bills

@@ -15,7 +15,7 @@ For the most part follow [How to schedule athena queries](https://aws.amazon.com
     2. IAM Create new Policy
         1. Create policy
         2. Use JSON input and paste the following policy [Bucket-policy](https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/bucket-policy.json)
-        3. **Note:** Be sure to replacing CHANGE-ME for your BUCKET name
+        3. **Note:** Be sure to replace CHANGE-ME for your BUCKET name
     3. IAM Create new Role
         1. Create Role
         2. Trusted entity type: AWS Account
@@ -106,7 +106,7 @@ For the most part follow [How to schedule athena queries](https://aws.amazon.com
     2. Write some code for collecting the finalized data
         1. Select code tab in the lambda function
         2. Add [athena_query_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt), make sure to update the SOURCE_UUID, BUCKET and DATABASE Vars
-        3. Note: If you customized your Athena queries from the non stardard ones provided, you will need to do the same here.
+        3. Note: If you customized your Athena queries from the non standard ones provided, you will need to do the same here.
         4. Uncomment the following code:
 
         ```
@@ -149,7 +149,7 @@ For the most part follow [How to schedule athena queries](https://aws.amazon.com
 
 3. Create EventBridge schedule for Cost Mgmt Post function
     1. [Creating Amazon Eventbridges](#creating-amazon-eventbridges) be sure to update the {CRON_SCHEDULE}
-        1. NOTE: The cadence for these should be run once a month on or after the 15th of the month since AWS should have finilized your bill by this date.
+        1. NOTE: The cadence for these should be run once a month on or after the 15th of the month since AWS should have finalized your bill by this date.
         2. Example crons: `(0 9 15 * ? *)` and `(0 21 15 * ? *)`
 
 ## Cost and Usage creation
@@ -160,7 +160,7 @@ For the most part follow [How to schedule athena queries](https://aws.amazon.com
 4. Name your export (Save this name for lambda functions)
 5. Select Include resource IDs followed by Next
 6. Configure S3 bucket to store usage data
-7. Set exprt prefix
+7. Set export prefix
 8. Time Granularity: Hourly
 9. Enable export data integration for: Amazon Athena
 10. Next to review configuration and Create
@@ -199,15 +199,15 @@ For the most part follow [How to schedule athena queries](https://aws.amazon.com
 
 ## Function Code and Athena Queries
 
-* For standard Hybrid Commited Spend queries use the default [athena_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt)
+* For standard Hybrid Committed Spend queries use the default [athena_function](https://github.com/project-koku/koku-data-selector/blob/main/docs/aws/scripts/athena-query-function.txt)
     * Initial query to grab all data: **query = f"SELECT * FROM {database}.{export_name} WHERE year = '{year}' AND month = '{month}'"**
     * To filter the data add a **WHERE** clause, for example **WHERE line_item_line_item_description LIKE '%Red Hat%'** would filter out all data that does not have a description containing Red Hat.
     * It's also possible to stack these by using **AND** and **OR** with your **WHERE** clause.
     * Examples:
-        1. **service.description** Used to filter to a specifc services such as BigQuery, Cloud Logging etc.
+        1. **service.description** Used to filter to a specific services such as BigQuery, Cloud Logging etc.
         2. **line_item_product_code**, **line_item_resource_id** or **product_product_name** Used to filter specific product/services based on Code, resource_id or Name.
-        3. **product_location**, **product_region** Used to filter data in a specifc region.
-        4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specifc instance.
+        3. **product_location**, **product_region** Used to filter data in a specific region.
+        4. **product_product_family**, **product_instance_type** Used to filter resource types by family or specific instance.
     * Once your custom query is built just replace line 18 with your revised version.
 
 ## Creating Amazon Eventbridges
