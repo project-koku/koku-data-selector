@@ -3,10 +3,10 @@
 GCP: Customer-filtered data
 ===========================
 *Prerequisites:*
-    - A console.redhat.com service account is required
-    - The service account must have the correct roles assigned in C.R.C for Cost management access
+    - A console.redhat.com service account is required.
+    - The service account must have at least the ``settings.write`` permission in the Red Hat Hybrid Console for Cost management access.
 
-1. Create new bucket for filtered reports 
+1. Create new bucket for filtered reports
     a. Follow these `instructions <https://cloud.google.com/storage/docs/creating-buckets>`_
 
 2. Grant access to bucket data
@@ -82,7 +82,7 @@ GCP: Customer-filtered data
 Secrets Manager Credentials
 ===========================
 
-1. From GCP Secrets Manager 
+1. From GCP Secrets Manager
 2. Create two new secrets one for each client_id/client_secret
 3. Name your secret
 4. Add secret value

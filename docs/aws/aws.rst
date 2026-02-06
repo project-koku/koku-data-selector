@@ -3,8 +3,8 @@
 AWS: Customer-filtered data
 ===========================
 *Prerequisites:*
-    - A console.redhat.com service account is required
-    - The service account must have the correct roles assigned in C.R.C for Cost management access
+    - A console.redhat.com service account is required.
+    - The service account must have at least the ``settings.write`` permission in the Red Hat Hybrid Console for Cost management access.
 
 For the most part follow `How to schedule athena queries <https://aws.amazon.com/premiumsupport/knowledge-center/schedule-query-athena/>`_
 

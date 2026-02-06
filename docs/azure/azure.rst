@@ -7,8 +7,8 @@ Azure: Customer-filtered data
 Azure resource group and storage account
 ========================================
 *Prerequisites:*
-    - A console.redhat.com service account is required
-    - The service account must have the correct roles assigned in C.R.C for Cost management access
+    - A console.redhat.com service account is required.
+    - The service account must have at least the ``settings.write`` permission in the Red Hat Hybrid Console for Cost management access.
     - Filtered CSV files *MUST* have the required columns as defined in `Azure filtering required columns`_
 
 1. Create new resource group and storage account for filtered reports using these `instructions <https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal>`_
@@ -45,7 +45,7 @@ Azure resource group and storage account
         ii. Select identity in the blade
         iii. Turn on System assigned identity
         iv. Go to Azure role assignements
-        v. Add the following roles for both storage accounts created previously  
+        v. Add the following roles for both storage accounts created previously
 
         .. code-block::
 
@@ -61,7 +61,7 @@ Collecting Finalized Data
 1. Setup function to send finalized billing reports
     a. Create Azure Time Trigger function using `VSCode <https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-configuration>`_
         i. Set the Time trigger function to run once a month after the 3rd of the month (after Azure finialises billing data)
-        ii. Uncomment the following lines 
+        ii. Uncomment the following lines
 
         ..code-block::
 
@@ -83,7 +83,7 @@ Collecting Finalized Data
         ii. Select identity in the blade
         iii. Turn on System assigned identity
         iv. Go to Azure role assignements
-        v. Add the following roles for both storage accounts created previously  
+        v. Add the following roles for both storage accounts created previously
 
         .. code-block::
 
@@ -125,7 +125,7 @@ Adding Vault Creds To functions
 6. Save
 7. Add Another application setting for: *ClientSecretFromVault*
 8. Value: *@Microsoft.KeyVault(SecretUri=YOUR-CLIENT-SECRET-URI)*
-9. Make sure to Replace the URI's with your Secret URI's 
+9. Make sure to Replace the URI's with your Secret URI's
 
 Function Code and Queries
 =========================
